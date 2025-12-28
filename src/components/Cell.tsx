@@ -1,14 +1,15 @@
 import React from 'react';
+import { CellData } from '../utils/sudoku-generator';
 
 type CellProps = {
-  value: number | null;
-  readOnly?: boolean;
+  value: CellData | null;
   row: number;
   col: number;
+  pencilMode?: boolean;
   onChange?: (row: number, col: number, value: number | null) => void;
 };
 
-const Cell: React.FC<CellProps> = ({ value, readOnly = false, row, col, onChange }) => {
+const Cell: React.FC<CellProps> = ({ value, row, col, pencilMode, onChange }) => {
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const val = e.target.value;
     if (val === '') {
@@ -18,10 +19,12 @@ const Cell: React.FC<CellProps> = ({ value, readOnly = false, row, col, onChange
     }
   };
 
+  const readOnly = value?.isInitial ?? false;
+
   return (
     <input
       type="text"
-      value={value ?? ''}
+      value={value?.value ?? ''}
       readOnly={readOnly}
       maxLength={1}
       onChange={handleChange}

@@ -2,14 +2,14 @@ import React from "react";
 
 type NumberPadProps = {
   onNumberClick: (num: number) => void;
-  onErase?: () => void;
   onPencilClick?: () => void;
+  pencilMode?: boolean;
 };
 
 const numbers = [1, 2, 3, 4, 5, 6, 7, 8, 9];
 
 
-const NumberPad: React.FC<NumberPadProps> = ({ onNumberClick, onErase, onPencilClick }) => (
+const NumberPad: React.FC<NumberPadProps> = ({ onNumberClick, onPencilClick, pencilMode }) => (
   <div style={{ display: "grid", gridTemplateColumns: "repeat(5, 40px)", gap: "8px" }}>
     {numbers.map((num) => (
       <button
@@ -33,6 +33,8 @@ const NumberPad: React.FC<NumberPadProps> = ({ onNumberClick, onErase, onPencilC
         height: 40,
         fontSize: 18,
         cursor: "pointer",
+        background: pencilMode ? '#cce6ff' : '',
+        border: pencilMode ? '2px solid #3399ff' : '',
       }}
       aria-label="Pencil (notes)"
       title="Pencil (notes)"

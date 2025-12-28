@@ -1,14 +1,16 @@
 import React from 'react';
 import SubGrid from './SubGrid';
 
+import { CellData } from '../utils/sudoku-generator';
 
 type GameBoardProps = {
-  board: (number | null)[][];
-  initialBoard: (number | null)[][];
+  board: CellData[][];
+  initialBoard: CellData[][];
+  pencilMode: boolean;
   onChange: (row: number, col: number, value: number | null) => void;
 };
 
-const GameBoard: React.FC<GameBoardProps> = ({ board, initialBoard, onChange }) => {
+const GameBoard: React.FC<GameBoardProps> = ({ board, initialBoard, pencilMode, onChange }) => {
   const subgrids = [];
   for (let sgRow = 0; sgRow < 3; sgRow++) {
     for (let sgCol = 0; sgCol < 3; sgCol++) {
@@ -22,6 +24,7 @@ const GameBoard: React.FC<GameBoardProps> = ({ board, initialBoard, onChange }) 
           startRow={sgRow * 3}
           startCol={sgCol * 3}
           onChange={onChange}
+          pencilMode={pencilMode}
         />
       );
     }

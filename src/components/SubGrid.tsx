@@ -1,15 +1,17 @@
 import React from 'react';
 import Cell from './Cell';
+import { CellData } from '../utils/sudoku-generator';
 
 type SubgridProps = {
-  values: (number | null)[][];
-  initialValues: (number | null)[][];
+  values: CellData[][];
+  initialValues: CellData[][];
   startRow: number;
   startCol: number;
+  pencilMode?: boolean;
   onChange?: (row: number, col: number, value: number | null) => void;
 };
 
-const Subgrid: React.FC<SubgridProps> = ({ values, initialValues, startRow, startCol, onChange }) => (
+const Subgrid: React.FC<SubgridProps> = ({ values, initialValues, startRow, startCol, pencilMode, onChange }) => (
   <table
     style={{
       borderCollapse: 'collapse',
@@ -28,8 +30,8 @@ const Subgrid: React.FC<SubgridProps> = ({ values, initialValues, startRow, star
                 value={val}
                 row={startRow + rIdx}
                 col={startCol + cIdx}
-                readOnly={initialValues[rIdx][cIdx] !== null}
                 onChange={onChange}
+                pencilMode={pencilMode}
               />
             </td>
           ))}
