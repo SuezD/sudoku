@@ -29,8 +29,8 @@ function App() {
     if (initialBoard[row][col].isInitial) return;
     setBoard(prev => {
       const newBoard = prev.map(r => r.map(cell => ({ ...cell, notes: [...cell.notes] })));
-
       if (pencilMode) {
+        newBoard[row][col].value = null;
         let notes = newBoard[row][col].notes;
         if (value === null) {
           newBoard[row][col].notes = [];
@@ -60,7 +60,7 @@ function App() {
   return (
     <div className="App" style={{ minHeight: '100vh', display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center' }}>
       <h1>Sudoku</h1>
-      <GameBoard board={board} onChange={handleCellChange} initialBoard={initialBoard} pencilMode={pencilMode} />
+      <GameBoard board={board} onChange={handleCellChange} pencilMode={pencilMode} />
       <div style={{ marginTop: 24 }}>
         <NumberPad onNumberClick={handleNumberClick} onPencilClick={() => setPencilMode(!pencilMode)} pencilMode={pencilMode} />
       </div>
