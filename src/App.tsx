@@ -26,10 +26,6 @@ function App() {
   const [pencilMode, setPencilMode] = useState<boolean>(false);
   const [selectedCell, setSelectedCell] = useState<{ row: number; col: number } | null>(null);
 
-  const handleNumberClick = (num: number) => {
-    console.log('Number clicked:', num);
-  };
-
   const handleCellChange = (row: number, col: number, value: number | null) => {
     if (initialBoard[row][col].isInitial) return;
     setBoard(prev => {
@@ -104,7 +100,13 @@ function App() {
         selectedCell={selectedCell}
       />
       <div style={{ marginTop: 24, width: '100%', maxWidth: 600 }}>
-        <NumberPad onNumberClick={handleNumberClick} onPencilClick={() => setPencilMode(!pencilMode)} pencilMode={pencilMode} />
+        <NumberPad
+          onChange={handleCellChange}
+          selectedCell={selectedCell}
+          board={board}
+          onPencilClick={() => setPencilMode(!pencilMode)}
+          pencilMode={pencilMode}
+        />
       </div>
       <div style={{ minHeight: 24, marginTop: 12, color: valid ? 'green' : 'red', fontWeight: 'bold', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
         {valid != null && !valid ? 'Solution is not valid!' : ''}

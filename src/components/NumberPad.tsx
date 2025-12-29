@@ -1,7 +1,9 @@
 import React from "react";
 
 type NumberPadProps = {
-  onNumberClick: (num: number) => void;
+  onChange: (row: number, col: number, value: number | null) => void;
+  selectedCell: { row: number; col: number } | null;
+  board: import('../utils/sudokuGenerator').CellData[][];
   onPencilClick?: () => void;
   pencilMode?: boolean;
 };
@@ -9,12 +11,26 @@ type NumberPadProps = {
 const numbers = [1, 2, 3, 4, 5, 6, 7, 8, 9];
 
 
-const NumberPad: React.FC<NumberPadProps> = ({ onNumberClick, onPencilClick, pencilMode }) => (
+const NumberPad: React.FC<NumberPadProps> = ({ onChange, selectedCell, board, onPencilClick, pencilMode }) => {
+  
+  const handleNumberClick = (num: number) => {
+    if (!selectedCell) return;
+    const { row, col } = selectedCell;
+    if (board[row][col].isInitial) return;
+    if (board[row][col].value === num) {
+      onChange(row, col, null);
+    } else {
+      onChange(row, col, num);
+    }
+  };
+
+  return (
   <div style={{ display: "flex", justifyContent: "space-between", width: '100%', gap: '0.5rem' }}>
     {numbers.map((num) => (
       <button
         key={num}
-        onClick={() => onNumberClick(num)}
+        onMouseDown={e => e.preventDefault()}
+        onClick={() => handleNumberClick(num)}
         style={{
           flex: 1,
           height: '100%',
@@ -45,6 +61,6 @@ const NumberPad: React.FC<NumberPadProps> = ({ onNumberClick, onPencilClick, pen
       ✏️
     </button>
   </div>
-);
+)};
 
 export default NumberPad;
