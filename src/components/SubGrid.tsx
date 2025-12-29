@@ -6,11 +6,13 @@ type SubgridProps = {
   data: CellData[][];
   sgRow: number;
   sgCol: number;
-  pencilMode: boolean;
   onChange: (row: number, col: number, value: number | null) => void;
+  onCellSelect: (row: number, col: number) => void;
+  selectedValue: number | null;
+  selectedCell: { row: number; col: number } | null;
 };
 
-function Subgrid({ data, sgRow, sgCol, pencilMode, onChange }: SubgridProps) {
+function Subgrid({ data, sgRow, sgCol, onChange, onCellSelect, selectedValue, selectedCell }: SubgridProps) {
   return (
     <table
       style={{
@@ -31,7 +33,9 @@ function Subgrid({ data, sgRow, sgCol, pencilMode, onChange }: SubgridProps) {
                   row={sgRow + rIdx}
                   col={sgCol + cIdx}
                   onChange={onChange}
-                  pencilMode={pencilMode}
+                  onSelect={onCellSelect}
+                  selectedValue={selectedValue}
+                  selectedCell={selectedCell}
                 />
               </td>
             ))}

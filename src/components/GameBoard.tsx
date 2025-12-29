@@ -4,11 +4,13 @@ import { CellData } from '../utils/sudokuGenerator';
 
 type GameBoardProps = {
   board: CellData[][];
-  pencilMode: boolean;
   onChange: (row: number, col: number, value: number | null) => void;
+  onCellSelect: (row: number, col: number) => void;
+  selectedValue: number | null;
+  selectedCell: { row: number; col: number } | null;
 };
 
-const GameBoard: React.FC<GameBoardProps> = ({ board, pencilMode, onChange }) => {
+const GameBoard: React.FC<GameBoardProps> = ({ board, onChange, onCellSelect, selectedValue, selectedCell }) => {
   const subgrids = [];
   for (let sgRow = 0; sgRow < 3; sgRow++) {
     for (let sgCol = 0; sgCol < 3; sgCol++) {
@@ -20,7 +22,9 @@ const GameBoard: React.FC<GameBoardProps> = ({ board, pencilMode, onChange }) =>
           sgRow={sgRow * 3}
           sgCol={sgCol * 3}
           onChange={onChange}
-          pencilMode={pencilMode}
+          onCellSelect={onCellSelect}
+          selectedValue={selectedValue}
+          selectedCell={selectedCell}
         />
       );
     }

@@ -5,11 +5,13 @@ type CellProps = {
   value: CellData | null;
   row: number;
   col: number;
-  pencilMode?: boolean;
   onChange?: (row: number, col: number, value: number | null) => void;
+  onSelect?: (row: number, col: number) => void;
+  selectedValue?: number | null;
+  selectedCell?: { row: number; col: number } | null;
 };
 
-const Cell: React.FC<CellProps> = ({ value, row, col, pencilMode, onChange }) => {
+const Cell: React.FC<CellProps> = ({ value, row, col, onChange, onSelect, selectedValue, selectedCell }) => {
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     let val = e.target.value;
     const match = val.match(/[1-9]/g);
@@ -18,11 +20,24 @@ const Cell: React.FC<CellProps> = ({ value, row, col, pencilMode, onChange }) =>
       onChange?.(row, col, null);
     } else {
       const lastDigit = Number(match[match.length - 1]);
-      onChange?.(row, col, lastDigit);
+      if (value?.value === lastDigit) {
+        onChange?.(row, col, null);
+      } else {
+        onChange?.(row, col, lastDigit);
+      }
     }
   };
 
   const readOnly = value?.isInitial ?? false;
+
+  const isHighlighted = selectedValue != null && value?.value != null && value.value === selectedValue;
+  let isRelated = false;
+  if (selectedCell) {
+    const sameRow = row === selectedCell.row;
+    const sameCol = col === selectedCell.col;
+    const sameBox = Math.floor(row / 3) === Math.floor(selectedCell.row / 3) && Math.floor(col / 3) === Math.floor(selectedCell.col / 3);
+    isRelated = sameRow || sameCol || sameBox;
+  }
 
   return (
     <div
@@ -33,11 +48,18 @@ const Cell: React.FC<CellProps> = ({ value, row, col, pencilMode, onChange }) =>
         alignItems: 'center',
         justifyContent: 'center',
         border: '1px solid #ccc',
-        background: readOnly ? '#eee' : '#fff',
+        background: isHighlighted
+          ? '#ffe066'
+          : isRelated && !isHighlighted
+          ? '#e0f7fa'
+          : readOnly
+          ? '#eee'
+          : '#fff',
         fontSize: '1.5em',
         position: 'relative',
         boxSizing: 'border-box',
       }}
+      onClick={() => onSelect?.(row, col)}
     >
       {value?.notes && value?.notes.length > 0 && (
         <div style={{

@@ -24,6 +24,7 @@ function App() {
   const [board, setBoard] = useState<CellData[][]>(() => cloneBoard(initialBoard));
   const [valid, setValid] = useState<boolean | null>(null);
   const [pencilMode, setPencilMode] = useState<boolean>(false);
+  const [selectedCell, setSelectedCell] = useState<{ row: number; col: number } | null>(null);
 
   const handleNumberClick = (num: number) => {
     console.log('Number clicked:', num);
@@ -63,10 +64,18 @@ function App() {
     });
   };
 
+  const selectedValue = selectedCell ? board[selectedCell.row][selectedCell.col].value : null;
+
   return (
     <div className="App" style={{ minHeight: '100vh', display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center' }}>
       <h1>Sudoku</h1>
-      <GameBoard board={board} onChange={handleCellChange} pencilMode={pencilMode} />
+      <GameBoard
+        board={board}
+        onChange={handleCellChange}
+        onCellSelect={(row, col) => setSelectedCell({ row, col })}
+        selectedValue={selectedValue}
+        selectedCell={selectedCell}
+      />
       <div style={{ marginTop: 24 }}>
         <NumberPad onNumberClick={handleNumberClick} onPencilClick={() => setPencilMode(!pencilMode)} pencilMode={pencilMode} />
       </div>
