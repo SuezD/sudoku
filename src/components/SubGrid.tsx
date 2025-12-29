@@ -20,6 +20,9 @@ function Subgrid({ data, sgRow, sgCol, onChange, onCellSelect, selectedValue, se
         borderSpacing: 0,
         border: '2px solid #333',
         background: '#f9f9f9',
+        width: '100%',
+        height: '100%',
+        tableLayout: 'fixed',
       }}
     >
       <tbody>

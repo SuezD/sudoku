@@ -61,8 +61,9 @@ const Cell: React.FC<CellProps> = ({ value, row, col, onChange, onSelect, select
   return (
     <div
       style={{
-        width: '2em',
-        height: '2em',
+        width: '100%',
+        height: '100%',
+        aspectRatio: '1 / 1',
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'center',
@@ -74,7 +75,7 @@ const Cell: React.FC<CellProps> = ({ value, row, col, onChange, onSelect, select
           : readOnly
           ? '#eee'
           : '#fff',
-        fontSize: '1.5em',
+        fontSize: '2em',
         position: 'relative',
         boxSizing: 'border-box',
       }}

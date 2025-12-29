@@ -103,7 +103,7 @@ function App() {
         selectedValue={selectedValue}
         selectedCell={selectedCell}
       />
-      <div style={{ marginTop: 24 }}>
+      <div style={{ marginTop: 24, width: '100%', maxWidth: 600 }}>
         <NumberPad onNumberClick={handleNumberClick} onPencilClick={() => setPencilMode(!pencilMode)} pencilMode={pencilMode} />
       </div>
       <div style={{ minHeight: 24, marginTop: 12, color: valid ? 'green' : 'red', fontWeight: 'bold', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
