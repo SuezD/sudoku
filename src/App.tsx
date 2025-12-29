@@ -17,17 +17,41 @@ function isBoardFilled(board: Board): boolean {
   return board.every(row => row.every(cell => cell.value !== null));
 }
 
+function removeValueFromNotes(board: CellData[][], row: number, col: number, value: number) {
+  const size = 9;
+  const boxRow = Math.floor(row / 3) * 3;
+  const boxCol = Math.floor(col / 3) * 3;
+  // Row
+  for (let c = 0; c < size; c++) {
+    if (c !== col) {
+      board[row][c].notes = board[row][c].notes.filter(n => n !== value);
+    }
+  }
+  // Col
+  for (let r = 0; r < size; r++) {
+    if (r !== row) {
+      board[r][col].notes = board[r][col].notes.filter(n => n !== value);
+    }
+  }
+  // Box
+  for (let r = boxRow; r < boxRow + 3; r++) {
+    for (let c = boxCol; c < boxCol + 3; c++) {
+      if (r !== row || c !== col) {
+        board[r][c].notes = board[r][c].notes.filter(n => n !== value);
+      }
+    }
+  }
+}
+
 function App() {
   // fill between 17 and 40 cells
   const filledCells = Math.floor(Math.random() * (40 - 17 + 1)) + 17;
-  const [initialBoard] = useState<CellData[][]>(() => generateBoard(BASE, filledCells));
-  const [board, setBoard] = useState<CellData[][]>(() => cloneBoard(initialBoard));
+  const [board, setBoard] = useState<CellData[][]>(() => generateBoard(BASE, filledCells));
   const [valid, setValid] = useState<boolean | null>(null);
   const [pencilMode, setPencilMode] = useState<boolean>(false);
   const [selectedCell, setSelectedCell] = useState<{ row: number; col: number } | null>(null);
 
   const handleCellChange = (row: number, col: number, value: number | null) => {
-    if (initialBoard[row][col].isInitial) return;
     setBoard(prev => {
       const newBoard = prev.map(r => r.map(cell => ({ ...cell, notes: [...cell.notes] })));
       if (pencilMode) {
@@ -46,8 +70,15 @@ function App() {
           newBoard[row][col].notes = notes;
         }
       } else {
+        if (newBoard[row][col].value === value) {
+          newBoard[row][col].value = null;
+        } else {
+          newBoard[row][col].value = value;
+          if (value !== null) {
+            removeValueFromNotes(newBoard, row, col, value);
+          }
+        }
         newBoard[row][col].notes = [];
-        newBoard[row][col].value = value;
         const isValid = isStructurallyValidSudoku(newBoard);
         setValid(isValid);
         if (isBoardFilled(newBoard) && isValid) {

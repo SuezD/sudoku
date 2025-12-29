@@ -15,16 +15,17 @@ const Cell: React.FC<CellProps> = ({ value, row, col, onChange, onSelect, select
   const inputRef = useRef<HTMLInputElement>(null);
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     let val = e.target.value;
-    const match = val.match(/[1-9]/g);
+    const match = val==='' ? null : val[val.length-1].match(/[1-9]/g);
 
-    if (!val || !match) {
+    if (val==='') {
       onChange?.(row, col, null);
-    } else {
-      const lastDigit = Number(match[match.length - 1]);
-      if (value?.value === lastDigit) {
+    } else if (match) {
+      const newDigit = Number(match[match.length - 1]);
+      const lastDigit = value?.value;
+      if (lastDigit === newDigit) {
         onChange?.(row, col, null);
       } else {
-        onChange?.(row, col, lastDigit);
+        onChange?.(row, col, newDigit);
       }
     }
   };
@@ -71,10 +72,10 @@ const Cell: React.FC<CellProps> = ({ value, row, col, onChange, onSelect, select
         background: isHighlighted
           ? '#fff066ff'
           : isRelated && !isHighlighted
-          ? '#e0f7fa'
-          : readOnly
-          ? '#eee'
-          : '#fff',
+            ? '#e0f7fa'
+            : readOnly
+              ? '#eee'
+              : '#fff',
         fontSize: '2em',
         position: 'relative',
         boxSizing: 'border-box',
