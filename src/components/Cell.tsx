@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useRef, useEffect } from 'react';
 import { CellData } from '../utils/sudokuGenerator';
 
 type CellProps = {
@@ -12,6 +12,7 @@ type CellProps = {
 };
 
 const Cell: React.FC<CellProps> = ({ value, row, col, onChange, onSelect, selectedValue, selectedCell }) => {
+  const inputRef = useRef<HTMLInputElement>(null);
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     let val = e.target.value;
     const match = val.match(/[1-9]/g);
@@ -39,6 +40,24 @@ const Cell: React.FC<CellProps> = ({ value, row, col, onChange, onSelect, select
     isRelated = sameRow || sameCol || sameBox;
   }
 
+  const handleKeyDown = (e: React.KeyboardEvent<HTMLDivElement>) => {
+    if (e.code === 'Space' || e.key === ' ') {
+      e.preventDefault();
+      if (typeof window !== 'undefined') {
+        const event = new CustomEvent('togglePencilMode');
+        window.dispatchEvent(event);
+      }
+    }
+  };
+
+  useEffect(() => {
+    if (selectedCell && selectedCell.row === row && selectedCell.col === col) {
+      inputRef.current?.focus();
+    } else {
+      inputRef.current?.blur();
+    }
+  }, [selectedCell, row, col]);
+
   return (
     <div
       style={{
@@ -49,7 +68,7 @@ const Cell: React.FC<CellProps> = ({ value, row, col, onChange, onSelect, select
         justifyContent: 'center',
         border: '1px solid #ccc',
         background: isHighlighted
-          ? '#ffe066'
+          ? '#fff066ff'
           : isRelated && !isHighlighted
           ? '#e0f7fa'
           : readOnly
@@ -60,6 +79,8 @@ const Cell: React.FC<CellProps> = ({ value, row, col, onChange, onSelect, select
         boxSizing: 'border-box',
       }}
       onClick={() => onSelect?.(row, col)}
+      tabIndex={0}
+      onKeyDown={handleKeyDown}
     >
       {value?.notes && value?.notes.length > 0 && (
         <div style={{
@@ -84,6 +105,7 @@ const Cell: React.FC<CellProps> = ({ value, row, col, onChange, onSelect, select
         </div>
       )}
       <input
+        ref={inputRef}
         type="text"
         id={`cell-${row}-${col}`}
         value={value?.value ?? ''}
