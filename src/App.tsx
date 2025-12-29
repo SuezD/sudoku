@@ -3,7 +3,7 @@ import GameBoard from './components/GameBoard';
 import NumberPad from './components/NumberPad';
 import confetti from 'canvas-confetti';
 
-import { CellData, generateSimpleBoard } from './utils/sudoku-generator';
+import { CellData, generateBoard } from './utils/sudoku-generator';
 import { isValidSudoku } from './utils/sudoku-validator';
 import { useState } from 'react';
 
@@ -16,7 +16,7 @@ function isBoardFilled(board: (number | null)[][]): boolean {
 }
 
 function App() {
-  const [initialBoard] = useState<CellData[][]>(() => generateSimpleBoard());
+  const [initialBoard] = useState<CellData[][]>(() => generateBoard());
   const [board, setBoard] = useState<CellData[][]>(() => cloneBoard(initialBoard));
   const [valid, setValid] = useState<boolean | null>(null);
   const [pencilMode, setPencilMode] = useState<boolean>(false);
@@ -50,6 +50,8 @@ function App() {
         const isValid = isValidSudoku(valueBoard);
         setValid(isValid);
         if (isBoardFilled(valueBoard) && isValid) {
+          // make all cell readOnly
+          // newBoard.forEach(row => row.forEach(cell => cell.isInitial = true));
           confetti();
         }
       }
