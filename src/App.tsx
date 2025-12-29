@@ -16,7 +16,8 @@ function isBoardFilled(board: Board): boolean {
 }
 
 function App() {
-  const [initialBoard] = useState<CellData[][]>(() => generateBoard());
+  const filledCells = 40;
+  const [initialBoard] = useState<CellData[][]>(() => generateBoard(filledCells));
   const [board, setBoard] = useState<CellData[][]>(() => cloneBoard(initialBoard));
   const [valid, setValid] = useState<boolean | null>(null);
   const [pencilMode, setPencilMode] = useState<boolean>(false);

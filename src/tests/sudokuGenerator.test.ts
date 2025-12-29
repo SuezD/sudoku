@@ -3,7 +3,7 @@ import { isStructurallyValidSudoku } from '../utils/sudokuValidator';
 
 describe('Sudoku Generator', () => {
   it('should generate a 9x9 board by default', () => {
-    const board = generateBoard();
+    const board = generateBoard(40);
     expect(board.length).toBe(9);
     expect(board.every(row => row.length === 9)).toBe(true);
   });
@@ -22,14 +22,14 @@ describe('Sudoku Generator', () => {
   });
 
   it('should not mutate the original board when shuffling', () => {
-    const board1 = generateBoard();
-    const board2 = generateBoard();
+    const board1 = generateBoard(40);
+    const board2 = generateBoard(40);
     expect(board1).not.toBe(board2);
     expect(JSON.stringify(board1)).not.toBe(JSON.stringify(board2));
   });
 
   it('should only use numbers within the valid range', () => {
-    const board = generateBoard();
+    const board = generateBoard(40);
     const valid = board.flat().every(cell =>
       cell.value === null || (cell.value >= 1 && cell.value <= 9)
     );
@@ -38,7 +38,7 @@ describe('Sudoku Generator', () => {
 
   it('should generate structurally valid boards repeatedly', () => {
     for (let i = 0; i < 20; i++) {
-      const board = generateBoard();
+      const board = generateBoard(40);
       expect(isStructurallyValidSudoku(board)).toBe(true);
     }
   });

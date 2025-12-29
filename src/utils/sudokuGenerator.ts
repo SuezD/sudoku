@@ -16,11 +16,11 @@ function createEmptyBoard(size: number): Board {
   );
 }
 
-export function generateBoard(filledCells?: number): Board {
+export function generateBoard(filledCells: number): Board {
   return generateBoardWithBase(BASE, filledCells);
 }
 
-export function generateBoardWithBase(base: number = 3, filledCells?: number): Board {
+export function generateBoardWithBase(base: number = 3, filledCells: number): Board {
   const size = base * base;
   let board = generateBaseBoard(base);
 
@@ -30,7 +30,7 @@ export function generateBoardWithBase(base: number = 3, filledCells?: number): B
   board = shuffleGroups(board, 'row', false, base); // Shuffle row bands
   board = shuffleGroups(board, 'col', false, base); // Shuffle column stacks
 
-  const cellsToRemove = (size * size) - (filledCells ?? (size * size - 1));
+  const cellsToRemove = (size * size) - filledCells;
   board = removeCells(board, cellsToRemove, base);
 
   return board;
