@@ -119,25 +119,40 @@ function App() {
     window.addEventListener('togglePencilMode', handler);
     return () => window.removeEventListener('togglePencilMode', handler);
   }, []);
-  
+
+  // Deselect cell when clicking outside the grid
+  useEffect(() => {
+    function handleClickOutside(e: MouseEvent) {
+      // Only clear if click is not inside a cell or grid
+      const grid = document.getElementById('sudoku-grid');
+      if (grid && !grid.contains(e.target as Node)) {
+        setSelectedCell(null);
+      }
+    }
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, []);
+
   return (
     <div className="App" style={{ minHeight: '100vh', display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center' }}>
       <h1>Sudoku</h1>
-      <GameBoard
-        board={board}
-        onChange={handleCellChange}
-        onCellSelect={(row, col) => setSelectedCell({ row, col })}
-        selectedValue={selectedValue}
-        selectedCell={selectedCell}
-      />
-      <div style={{ marginTop: 24, width: '100%', maxWidth: 600 }}>
-        <NumberPad
-          onChange={handleCellChange}
-          selectedCell={selectedCell}
+      <div id="sudoku-grid">
+        <GameBoard
           board={board}
-          onPencilClick={() => setPencilMode(!pencilMode)}
-          pencilMode={pencilMode}
+          onChange={handleCellChange}
+          onCellSelect={(row, col) => setSelectedCell({ row, col })}
+          selectedValue={selectedValue}
+          selectedCell={selectedCell}
         />
+        <div style={{ marginTop: 24, width: '100%', maxWidth: 600 }}>
+          <NumberPad
+            onChange={handleCellChange}
+            selectedCell={selectedCell}
+            board={board}
+            onPencilClick={() => setPencilMode(!pencilMode)}
+            pencilMode={pencilMode}
+          />
+        </div>
       </div>
       <div style={{ minHeight: 24, marginTop: 12, color: valid ? 'green' : 'red', fontWeight: 'bold', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
         {valid != null && !valid ? 'Solution is not valid!' : ''}
