@@ -7,6 +7,8 @@ import { Board, CellData, generateBoard } from './utils/sudokuGenerator';
 import { isStructurallyValidSudoku } from './utils/sudokuValidator';
 import { useState } from 'react';
 
+const BASE = 3;
+
 function cloneBoard(board: CellData[][]): CellData[][] {
   return board.map(row => row.slice());
 }
@@ -16,8 +18,9 @@ function isBoardFilled(board: Board): boolean {
 }
 
 function App() {
-  const filledCells = 40;
-  const [initialBoard] = useState<CellData[][]>(() => generateBoard(filledCells));
+  // fill between 17 and 40 cells
+  const filledCells = Math.floor(Math.random() * (40 - 17 + 1)) + 17;
+  const [initialBoard] = useState<CellData[][]>(() => generateBoard(BASE, filledCells));
   const [board, setBoard] = useState<CellData[][]>(() => cloneBoard(initialBoard));
   const [valid, setValid] = useState<boolean | null>(null);
   const [pencilMode, setPencilMode] = useState<boolean>(false);
@@ -32,6 +35,7 @@ function App() {
       const newBoard = prev.map(r => r.map(cell => ({ ...cell, notes: [...cell.notes] })));
       if (pencilMode) {
         newBoard[row][col].value = null;
+        setValid(isStructurallyValidSudoku(newBoard));
         let notes = newBoard[row][col].notes;
         if (value === null) {
           newBoard[row][col].notes = [];

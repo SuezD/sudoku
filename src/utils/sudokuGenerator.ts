@@ -8,16 +8,14 @@ export type CellData = {
 
 export type Board = CellData[][];
 
-const BASE = 3;
-
 function createEmptyBoard(size: number): Board {
   return Array.from({ length: size }, () =>
     Array.from({ length: size }, () => ({ value: null, notes: [], isInitial: false }))
   );
 }
 
-export function generateBoard(filledCells: number): Board {
-  return generateBoardWithBase(BASE, filledCells);
+export function generateBoard(base: number, filledCells: number): Board {
+  return generateBoardWithBase(base, filledCells);
 }
 
 export function generateBoardWithBase(base: number = 3, filledCells: number): Board {
@@ -147,5 +145,12 @@ function removeCells(board: Board, cellsToRemove: number, base: number): Board {
       }
     }
   }
+
+  if (removed < cellsToRemove) {
+    const actualFilledCells = size * size - removed;
+    const requestedFilledCells = size * size - cellsToRemove;
+    console.warn(`Generated board with ${actualFilledCells} filled cells (requested ${requestedFilledCells}).`);
+  }
+
   return newBoard;
 }
