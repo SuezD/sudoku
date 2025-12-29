@@ -3,7 +3,7 @@ import GameBoard from './components/GameBoard';
 import NumberPad from './components/NumberPad';
 import confetti from 'canvas-confetti';
 
-import { CellData, generateBoard } from './utils/sudoku-generator';
+import { CellData, generateBoard } from './utils/sudokuGenerator';
 import { isValidSudoku } from './utils/sudoku-validator';
 import { useState } from 'react';
 

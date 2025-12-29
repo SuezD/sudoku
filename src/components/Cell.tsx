@@ -1,5 +1,5 @@
 import React from 'react';
-import { CellData } from '../utils/sudoku-generator';
+import { CellData } from '../utils/sudokuGenerator';
 
 type CellProps = {
   value: CellData | null;

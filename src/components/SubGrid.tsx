@@ -1,6 +1,6 @@
 import React from 'react';
 import Cell from './Cell';
-import { CellData } from '../utils/sudoku-generator';
+import { CellData } from '../utils/sudokuGenerator';
 
 type SubgridProps = {
   data: CellData[][];

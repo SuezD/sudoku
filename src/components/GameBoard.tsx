@@ -1,6 +1,6 @@
 import React from 'react';
 import SubGrid from './SubGrid';
-import { CellData } from '../utils/sudoku-generator';
+import { CellData } from '../utils/sudokuGenerator';
 
 type GameBoardProps = {
   board: CellData[][];
