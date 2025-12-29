@@ -21,12 +21,7 @@ const Cell: React.FC<CellProps> = ({ value, row, col, onChange, onSelect, select
       onChange?.(row, col, null);
     } else if (match) {
       const newDigit = Number(match[match.length - 1]);
-      const lastDigit = value?.value;
-      if (lastDigit === newDigit) {
-        onChange?.(row, col, null);
-      } else {
-        onChange?.(row, col, newDigit);
-      }
+      onChange?.(row, col, newDigit);
     }
   };
 

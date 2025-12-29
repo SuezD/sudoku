@@ -17,11 +17,7 @@ const NumberPad: React.FC<NumberPadProps> = ({ onChange, selectedCell, board, on
     if (!selectedCell) return;
     const { row, col } = selectedCell;
     if (board[row][col].isInitial) return;
-    if (board[row][col].value === num) {
-      onChange(row, col, null);
-    } else {
-      onChange(row, col, num);
-    }
+    onChange(row, col, num);
   };
 
   return (
