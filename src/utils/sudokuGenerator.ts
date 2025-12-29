@@ -1,3 +1,5 @@
+import { hasOneValidSolution } from "./sudokuSolver";
+
 export type CellData = {
   value: number | null;
   notes: number[];
@@ -121,13 +123,28 @@ function removeCells(board: Board, cellsToRemove: number, base: number): Board {
   const size = base * base;
   let removed = 0;
   const newBoard: Board = board.map(row => row.map(cell => ({ ...cell })));
-  while (removed < cellsToRemove) {
-    const r = Math.floor(Math.random() * size);
-    const c = Math.floor(Math.random() * size);
+
+  const positions: Array<{ r: number; c: number }> = [];
+  for (let r = 0; r < size; r++) {
+    for (let c = 0; c < size; c++) {
+      positions.push({ r, c });
+    }
+  }
+  const shuffledPositions = shuffleArray(positions);
+
+  for (let i = 0; i < shuffledPositions.length && removed < cellsToRemove; i++) {
+    const { r, c } = shuffledPositions[i];
     if (newBoard[r][c].value !== null) {
+      const oldValue = newBoard[r][c].value;
+      const oldIsInitial = newBoard[r][c].isInitial;
       newBoard[r][c].value = null;
       newBoard[r][c].isInitial = false;
-      removed++;
+      if (hasOneValidSolution(newBoard, base)) {
+        removed++;
+      } else {
+        newBoard[r][c].value = oldValue;
+        newBoard[r][c].isInitial = oldIsInitial;
+      }
     }
   }
   return newBoard;

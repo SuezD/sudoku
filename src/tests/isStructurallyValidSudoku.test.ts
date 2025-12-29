@@ -1,4 +1,4 @@
-import { isStructurallyValidSudoku } from './utils/isStructurallyValidSudoku';
+import { isStructurallyValidSudoku } from '../utils/sudokuValidator';
 
 describe('isStructurallyValidSudoku', () => {
 	it('returns true for a valid 4x4 board', () => {

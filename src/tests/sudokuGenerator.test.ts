@@ -1,5 +1,5 @@
-import { generateBoard, generateBoardWithBase, Board } from '../utils/sudokuGenerator';
-import { isStructurallyValidSudoku } from './utils/isStructurallyValidSudoku';
+import { generateBoard, generateBoardWithBase } from '../utils/sudokuGenerator';
+import { isStructurallyValidSudoku } from '../utils/sudokuValidator';
 
 describe('Sudoku Generator', () => {
   it('should generate a 9x9 board by default', () => {
