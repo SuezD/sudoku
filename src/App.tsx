@@ -112,21 +112,21 @@ function App() {
     setValid(isStructurallyValidSudoku(board));
   }, [board]);
 
-  const handleUndo = () => {
+  const handleUndo = useCallback(() => {
     if (undoStack.current.length > 0) {
       redoStack.current.push(deepCloneBoard(board));
       const prevBoard = undoStack.current.pop();
       if (prevBoard) setBoard(deepCloneBoard(prevBoard));
     }
-  };
+  }, [board]);
 
-  const handleRedo = () => {
+  const handleRedo = useCallback(() => {
     if (redoStack.current.length > 0) {
       undoStack.current.push(deepCloneBoard(board));
       const nextBoard = redoStack.current.pop();
       if (nextBoard) setBoard(deepCloneBoard(nextBoard));
     }
-  };
+  }, [board]);
 
   const selectedValue = selectedCell ? board[selectedCell.row][selectedCell.col].value : null;
 
@@ -166,7 +166,7 @@ function App() {
       window.removeEventListener('keydown', handleArrowNavigation);
       window.removeEventListener('keydown', handleKeyDown);
     };
-  }, [handleArrowNavigation, board]);
+  }, [handleArrowNavigation, handleUndo, handleRedo]);
 
   useEffect(() => {
     const handler = () => setPencilMode(p => !p);
