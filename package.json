@@ -1,5 +1,6 @@
 {
   "name": "sudoku",
+  "homepage": "https://SuezD.github.io/sudoku",
   "version": "0.1.0",
   "private": true,
   "dependencies": {
@@ -17,7 +18,9 @@
     "start": "react-scripts start",
     "build": "react-scripts build",
     "test": "react-scripts test",
-    "eject": "react-scripts eject"
+    "eject": "react-scripts eject",
+    "predeploy": "npm run test && npm run build",
+    "deploy": "gh-pages -d build"
   },
   "eslintConfig": {
     "extends": [
@@ -42,6 +45,7 @@
     "@types/jest": "^30.0.0",
     "@types/react": "^19.2.7",
     "@types/react-dom": "^19.2.3",
+    "gh-pages": "^6.3.0",
     "jest": "^30.2.0",
     "ts-jest": "^29.4.6"
   }
