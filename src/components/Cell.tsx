@@ -66,6 +66,7 @@ const Cell: React.FC<CellProps> = ({ value, row, col, onChange, onSelect, select
     }
   }, [selectedCell, row, col]);
 
+  const isSelected = selectedCell && selectedCell.row === row && selectedCell.col === col;
   const borderStyle: React.CSSProperties = {
     borderTop: '1px solid #bbb',
     borderLeft: '1px solid #bbb',
@@ -87,6 +88,10 @@ const Cell: React.FC<CellProps> = ({ value, row, col, onChange, onSelect, select
     justifyContent: 'center',
     position: 'relative',
     boxSizing: 'border-box',
+    outline: isSelected ? '2.5px solid #3399ff' : undefined,
+    outlineOffset: isSelected ? '-2px' : undefined,
+    zIndex: isSelected ? 2 : undefined,
+    borderRadius: isSelected ? '4px' : undefined,
   };
   return (
     <div

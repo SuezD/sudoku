@@ -11,8 +11,6 @@ html, body {
 
 :root {
   --cell-size: min(10vw, 10vh);
-  /* --sudoku-number-font-size: clamp(1.2rem, 7vw, 2em);
-  --sudoku-note-font-size: 0.33em; */
   --sudoku-number-font-size: calc(var(--cell-size) * 0.65);
   --sudoku-note-font-size: calc(var(--cell-size) * 0.33);
 }
@@ -91,6 +89,10 @@ html, body {
   box-sizing: border-box;
   flex: 1 1 0;
   width: 1%;
+  border-radius: 5px !important;
+  border: 1px solid #bbb !important;
+  box-shadow: none !important;
+  outline: none;
 }
 
 .numberpad-container {
@@ -125,12 +127,16 @@ html, body {
   }
 }
 
-@media (max-width: 400px) {
+@media (max-width: 600px) {
   .numberpad-root {
     display: grid !important;
     grid-template-columns: repeat(5, 1fr);
     grid-template-rows: repeat(2, 1fr);
     gap: 0.5rem;
+    width: 98vw !important;
+    max-width: 98vw !important;
+    min-width: 0 !important;
+    box-sizing: border-box;
   }
   .numberpad-root button {
     width: 100%;
