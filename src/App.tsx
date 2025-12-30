@@ -93,7 +93,7 @@ function App() {
         newBoard[row][col].notes = [];
         const isValid = isStructurallyValidSudoku(newBoard);
         if (isBoardFilled(newBoard) && isValid) {
-          confetti({ origin: { x: 0.5, y: 0.7 } });
+          confetti({ origin: { x: 0.5, y: 0.8 } });
         }
       }
       // Only push if prev is not already the last entry
