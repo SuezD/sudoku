@@ -96,6 +96,7 @@ html, body {
   border-radius: 5px !important;
   border: 1px solid #bbb !important;
   box-shadow: none !important;
+  /* background-color: #fff; */
   outline: none;
 }
 
@@ -131,7 +132,7 @@ html, body {
   }
 }
 
-@media (max-width: 600px) {
+@media (max-width: 300px) {
   .numberpad-root {
     display: grid !important;
     grid-template-columns: repeat(5, 1fr);
@@ -225,5 +226,27 @@ html, body {
   }
   to {
     transform: rotate(360deg);
+  }
+}
+
+.header-info {
+  display: flex;
+  justify-content: space-between;
+  font-size: min(0.8rem, 8vw);
+  width: 600px;
+  max-width: 600px;
+  margin: 0 auto 0.3rem auto;
+  text-align: center;
+  line-height: 1.1;
+  box-sizing: border-box;
+  padding: 0 0.2rem;
+}
+
+@media (max-width: 600px) {
+  .header-info {
+    width: 98vw !important;
+    max-width: 98vw !important;
+    min-width: 0 !important;
+    box-sizing: border-box;
   }
 }
