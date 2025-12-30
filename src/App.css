@@ -1,3 +1,20 @@
+/* Outline and shake animation for sudoku grid */
+.sudoku-grid-outline {
+  display: inline-block;
+}
+
+@keyframes shake {
+  0% { transform: translateX(0); }
+  20% { transform: translateX(-8px); }
+  40% { transform: translateX(8px); }
+  60% { transform: translateX(-8px); }
+  80% { transform: translateX(8px); }
+  100% { transform: translateX(0); }
+}
+
+.shake {
+  animation: shake 0.5s cubic-bezier(.36,.07,.19,.97) both;
+}
 html, body {
   margin: 0;
   padding: 0;
@@ -235,7 +252,7 @@ html, body {
   font-size: min(0.8rem, 8vw);
   width: 600px;
   max-width: 600px;
-  margin: 0 auto 0.3rem auto;
+  margin: 0 auto 0.5rem auto;
   text-align: center;
   line-height: 1.1;
   box-sizing: border-box;
