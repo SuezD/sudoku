@@ -6,6 +6,7 @@ import confetti from 'canvas-confetti';
 import { Board, CellData, generateBoard } from './utils/sudokuGenerator';
 import { isStructurallyValidSudoku } from './utils/sudokuValidator';
 import { useState, useEffect, useCallback, useRef, useMemo } from 'react';
+import seedrandom from 'seedrandom';
 
 const BASE = 3;
 
@@ -40,24 +41,25 @@ function removeValueFromNotes(board: CellData[][], row: number, col: number, val
 }
 
 function App() {
-  // fill between 17 and 40 cells
-  const filledCells = useMemo(() => Math.floor(Math.random() * (40 - 17 + 1)) + 17, []);
-  const difficulty = useMemo(() => filledCells <= 22 ? 'Hard' : filledCells <= 30 ? 'Medium' : 'Easy', [filledCells]);
-
-  function createOrGetSeedFromUrl() {
-    const path = window.location.pathname.replace(/^\//, "");
-    if (path && /^[a-zA-Z0-9]{5}$/.test(path)) return path;
-
+  function createOrGetSeedFromHash() {
+    const hash = window.location.hash.replace(/^#\/?/, "");
+    if (hash && /^[a-zA-Z0-9]{5}$/.test(hash)) return hash;
     const chars = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
     let seed = '';
     for (let i = 0; i < 5; i++) {
       seed += chars.charAt(Math.floor(Math.random() * chars.length));
     }
-    window.history.replaceState(null, '', `/${seed}`);
+    window.location.hash = `#/${seed}`;
     return seed;
   }
 
-  const [seed] = useState(createOrGetSeedFromUrl);
+  const [seed] = useState(createOrGetSeedFromHash);
+  // fill between 17 and 40 cells
+  const rng = seedrandom(seed);
+  const filledCells = Math.floor(rng() * (40 - 17 + 1)) + 17;
+  const difficulty = useMemo(() => filledCells <= 22 ? 'Hard' : filledCells <= 30 ? 'Medium' : 'Easy', [filledCells]);
+
+  
   const [board, setBoard] = useState<CellData[][]>(() => generateBoard(BASE, filledCells, seed));
   const [valid, setValid] = useState<boolean | null>(null);
   const [pencilMode, setPencilMode] = useState<boolean>(false);
