@@ -246,13 +246,13 @@ html, body {
   }
 }
 
-.header-info {
+.game-stats {
   display: flex;
   justify-content: space-between;
-  font-size: min(0.8rem, 8vw);
+  font-size: min(1rem, 8vw);
   width: 600px;
   max-width: 600px;
-  margin: 0 auto 0.5rem auto;
+  margin: 0.3rem auto 0 auto;
   text-align: center;
   line-height: 1.1;
   box-sizing: border-box;
@@ -260,7 +260,7 @@ html, body {
 }
 
 @media (max-width: 600px) {
-  .header-info {
+  .game-stats {
     width: 98vw !important;
     max-width: 98vw !important;
     min-width: 0 !important;

@@ -61,25 +61,25 @@ function App() {
   const filledCells = Math.floor(rng() * (40 - 17 + 1)) + 17;
   const difficulty = useMemo(() => filledCells <= 22 ? 'Hard' : filledCells <= 30 ? 'Medium' : 'Easy', [filledCells]);
 
-  
+
   const [board, setBoard] = useState<CellData[][]>(() => generateBoard(BASE, filledCells, seed));
   const [valid, setValid] = useState<boolean | null>(null);
   const [pencilMode, setPencilMode] = useState<boolean>(false);
   const [selectedCell, setSelectedCell] = useState<{ row: number; col: number } | null>(null);
-    // Clear highlight if selectedCell changes to an empty cell
-    useEffect(() => {
-      if (selectedCell) {
-        const v = board[selectedCell.row][selectedCell.col].value;
-        if (v != null) {
-          setHighlightValue(v);
-        } else {
-          setHighlightValue(null);
-        }
+  // Clear highlight if selectedCell changes to an empty cell
+  useEffect(() => {
+    if (selectedCell) {
+      const v = board[selectedCell.row][selectedCell.col].value;
+      if (v != null) {
+        setHighlightValue(v);
       } else {
         setHighlightValue(null);
       }
-      // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [selectedCell]);
+    } else {
+      setHighlightValue(null);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [selectedCell]);
   // Track the last highlighted value (from cell select or note input)
   const [highlightValue, setHighlightValue] = useState<number | null>(null);
   const undoStack = useRef<CellData[][][]>([]);
@@ -251,11 +251,6 @@ function App() {
     <div className="App">
       <div className="main-content">
         <h1 style={{ textAlign: 'center' }}>Sudoku</h1>
-        <div className="header-info">
-          <div>{difficulty + "#" + seed}</div>
-          <div style={{ color: 'red', fontWeight: 'bold' }}>{valid === false ? "INVALID INPUT" : ""}</div>
-          <div>{timeElapsed}</div>
-        </div>
         <div id="sudoku-grid">
           <div
             className={shake ? 'sudoku-grid-outline shake' : 'sudoku-grid-outline'}
@@ -276,6 +271,11 @@ function App() {
               selectedValue={effectiveHighlight}
               selectedCell={selectedCell}
             />
+          </div>
+          <div className="game-stats">
+            <div>{difficulty + " #" + seed}</div>
+            <div style={{ color: 'red', fontWeight: 'bold' }}>{valid === false ? "INVALID INPUT" : ""}</div>
+            <div>{timeElapsed}</div>
           </div>
           <div className="numberpad-container">
             <NumberPad
