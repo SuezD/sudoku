@@ -60,27 +60,32 @@ const Cell: React.FC<CellProps> = ({ value, row, col, onChange, onSelect, select
     }
   }, [selectedCell, row, col]);
 
+  const borderStyle: React.CSSProperties = {
+    borderTop: row % 3 === 0 ? '2.5px solid #333' : '1px solid #bbb',
+    borderLeft: col % 3 === 0 ? '2.5px solid #333' : '1px solid #bbb',
+    borderRight: col === 8 ? '2.5px solid #333' : undefined,
+    borderBottom: row === 8 ? '2.5px solid #333' : undefined,
+    background: isHighlighted
+      ? '#fff066ff'
+      : isRelated && !isHighlighted
+        ? '#e0f7fa'
+        : readOnly
+          ? '#eee'
+          : '#fff',
+    fontSize: 'var(--sudoku-number-font-size)',
+    width: '100%',
+    height: '100%',
+    aspectRatio: '1 / 1',
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+    position: 'relative',
+    boxSizing: 'border-box',
+  };
   return (
     <div
-      style={{
-        width: '100%',
-        height: '100%',
-        aspectRatio: '1 / 1',
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'center',
-        border: '1px solid #ccc',
-        background: isHighlighted
-          ? '#fff066ff'
-          : isRelated && !isHighlighted
-            ? '#e0f7fa'
-            : readOnly
-              ? '#eee'
-              : '#fff',
-        fontSize: 'var(--sudoku-number-font-size)',
-        position: 'relative',
-        boxSizing: 'border-box',
-      }}
+      className="sudoku-cell"
+      style={borderStyle}
       onClick={() => onSelect?.(row, col)}
       tabIndex={0}
       onKeyDown={handleKeyDown}

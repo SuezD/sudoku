@@ -1,6 +1,6 @@
 import React from 'react';
-import SubGrid from './SubGrid';
 import { CellData } from '../utils/sudokuGenerator';
+import Cell from './Cell';
 
 type GameBoardProps = {
   board: CellData[][];
@@ -11,29 +11,23 @@ type GameBoardProps = {
 };
 
 const GameBoard: React.FC<GameBoardProps> = ({ board, onChange, onCellSelect, selectedValue, selectedCell }) => {
-  const subgrids = [];
-  for (let sgRow = 0; sgRow < 3; sgRow++) {
-    for (let sgCol = 0; sgCol < 3; sgCol++) {
-      const values = board.slice(sgRow * 3, sgRow * 3 + 3).map(row => row.slice(sgCol * 3, sgCol * 3 + 3));
-      subgrids.push(
-        <SubGrid
-          key={`${sgRow}-${sgCol}`}
-          data={values}
-          sgRow={sgRow * 3}
-          sgCol={sgCol * 3}
-          onChange={onChange}
-          onCellSelect={onCellSelect}
-          selectedValue={selectedValue}
-          selectedCell={selectedCell}
-        />
-      );
-    }
-  }
-
   return (
     <div className="gameboard-container">
-      <div className="gameboard" style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gridTemplateRows: 'repeat(3, 1fr)', width: '100%', height: '100%' }}>
-        {subgrids}
+      <div className="gameboard sudoku-grid">
+        {board.map((row, rowIdx) =>
+          row.map((cell, colIdx) => (
+            <Cell
+              key={`${rowIdx}-${colIdx}`}
+              value={cell}
+              row={rowIdx}
+              col={colIdx}
+              onChange={onChange}
+              onSelect={onCellSelect}
+              selectedValue={selectedValue}
+              selectedCell={selectedCell}
+            />
+          ))
+        )}
       </div>
     </div>
   );
