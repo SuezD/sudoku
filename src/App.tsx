@@ -53,13 +53,13 @@ function App() {
     return seed;
   }
 
-  const [seed] = useState(createOrGetSeedFromHash);
+  const [seed, setSeed] = useState(createOrGetSeedFromHash);
   // fill between 17 and 40 cells
   const rng = seedrandom(seed);
   const filledCells = Math.floor(rng() * (40 - 17 + 1)) + 17;
   const difficulty = useMemo(() => filledCells <= 22 ? 'Hard' : filledCells <= 30 ? 'Medium' : 'Easy', [filledCells]);
 
-  
+
   const [board, setBoard] = useState<CellData[][]>(() => generateBoard(BASE, filledCells, seed));
   const [valid, setValid] = useState<boolean | null>(null);
   const [pencilMode, setPencilMode] = useState<boolean>(false);
@@ -77,6 +77,18 @@ function App() {
       setTimeElapsed(`${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`);
     }, 1000);
     return () => clearInterval(interval);
+  }, []);
+
+  useEffect(() => {
+    function onHashChange() {
+      const hash = window.location.hash.replace(/^#\/?/, "");
+      if (hash && /^[a-zA-Z0-9]{5}$/.test(hash) && hash !== seed) {
+        setSeed(hash);
+        setBoard(generateBoard(BASE, filledCells, hash));
+      }
+    }
+    window.addEventListener('hashchange', onHashChange);
+    return () => window.removeEventListener('hashchange', onHashChange);
   }, []);
 
   const deepCloneBoard = (b: CellData[][]) => b.map(row => row.map(cell => ({ ...cell, notes: [...cell.notes] })));
@@ -221,7 +233,7 @@ function App() {
       <div className="main-content">
         <h1 style={{ textAlign: 'center' }}>Sudoku</h1>
         <div className="header-info">
-          <div>{difficulty+"#"+seed}</div>
+          <div>{difficulty + "#" + seed}</div>
           <div>{timeElapsed}</div>
         </div>
         <div id="sudoku-grid">
