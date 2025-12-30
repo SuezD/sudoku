@@ -22,8 +22,8 @@ describe('Sudoku Generator', () => {
   });
 
   it('should not mutate the original board when shuffling', () => {
-    const board1 = generateBoard(3, 40);
-    const board2 = generateBoard(3, 40);
+    const board1 = generateBoard(3, 40, 'seed1');
+    const board2 = generateBoard(3, 40, 'seed2');
     expect(board1).not.toBe(board2);
     expect(JSON.stringify(board1)).not.toBe(JSON.stringify(board2));
   });
