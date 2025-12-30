@@ -21,7 +21,7 @@ const NumberPad: React.FC<NumberPadProps> = ({ onChange, selectedCell, board, on
   };
 
   return (
-  <div className="numberpad-root" style={{ display: "flex", justifyContent: "space-between", width: '100%', gap: '0.5rem' }}>
+  <div className="numberpad-root" style={{ display: "flex", justifyContent: "space-between", width: '100%', gap: '0.2rem' }}>
     {numbers.map((num) => (
       <button
         key={num}

@@ -5,7 +5,7 @@ import confetti from 'canvas-confetti';
 
 import { Board, CellData, generateBoard } from './utils/sudokuGenerator';
 import { isStructurallyValidSudoku } from './utils/sudokuValidator';
-import { useState, useEffect, useCallback, useRef } from 'react';
+import { useState, useEffect, useCallback, useRef, useMemo } from 'react';
 
 const BASE = 3;
 
@@ -41,13 +41,26 @@ function removeValueFromNotes(board: CellData[][], row: number, col: number, val
 
 function App() {
   // fill between 17 and 40 cells
-  const filledCells = Math.floor(Math.random() * (40 - 17 + 1)) + 17;
+  const filledCells = useMemo(() => Math.floor(Math.random() * (40 - 17 + 1)) + 17, []);
+  const difficulty = useMemo(() => filledCells <= 22 ? 'Hard' : filledCells <= 30 ? 'Medium' : 'Easy', [filledCells]);
   const [board, setBoard] = useState<CellData[][]>(() => generateBoard(BASE, filledCells));
   const [valid, setValid] = useState<boolean | null>(null);
   const [pencilMode, setPencilMode] = useState<boolean>(false);
   const [selectedCell, setSelectedCell] = useState<{ row: number; col: number } | null>(null);
   const undoStack = useRef<CellData[][][]>([]);
   const redoStack = useRef<CellData[][][]>([]);
+  const [timeElapsed, setTimeElapsed] = useState<string>('00:00');
+
+  useEffect(() => {
+    let seconds = 0;
+    const interval = setInterval(() => {
+      seconds++;
+      const mins = Math.floor(seconds / 60);
+      const secs = seconds % 60;
+      setTimeElapsed(`${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`);
+    }, 1000);
+    return () => clearInterval(interval);
+  }, []);
 
   const deepCloneBoard = (b: CellData[][]) => b.map(row => row.map(cell => ({ ...cell, notes: [...cell.notes] })));
 
@@ -190,7 +203,11 @@ function App() {
     <div className="App">
       <div className="main-content">
         <h1 style={{ textAlign: 'center' }}>Sudoku</h1>
-
+        {/* smaller header-like section under h1 for game difficulty (left) and timer on right */}
+        <div className="header-info">
+          <div>{difficulty}</div>
+          <div>{timeElapsed}</div>
+        </div>
         <div id="sudoku-grid">
           <GameBoard
             board={board}
