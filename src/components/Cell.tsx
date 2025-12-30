@@ -47,10 +47,16 @@ const Cell: React.FC<CellProps> = ({ value, row, col, onChange, onSelect, select
   };
 
   useEffect(() => {
+    const input = inputRef.current;
+    if (!input) return;
     if (selectedCell && selectedCell.row === row && selectedCell.col === col) {
-      inputRef.current?.focus();
+      if (document.activeElement !== input) {
+        input.focus();
+      }
     } else {
-      inputRef.current?.blur();
+      if (document.activeElement === input) {
+        input.blur();
+      }
     }
   }, [selectedCell, row, col]);
 

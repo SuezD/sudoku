@@ -5,13 +5,9 @@ import confetti from 'canvas-confetti';
 
 import { Board, CellData, generateBoard } from './utils/sudokuGenerator';
 import { isStructurallyValidSudoku } from './utils/sudokuValidator';
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 
 const BASE = 3;
-
-function cloneBoard(board: CellData[][]): CellData[][] {
-  return board.map(row => row.slice());
-}
 
 function isBoardFilled(board: Board): boolean {
   return board.every(row => row.every(cell => cell.value !== null));
@@ -50,10 +46,27 @@ function App() {
   const [valid, setValid] = useState<boolean | null>(null);
   const [pencilMode, setPencilMode] = useState<boolean>(false);
   const [selectedCell, setSelectedCell] = useState<{ row: number; col: number } | null>(null);
+  const undoStack = useRef<CellData[][][]>([]);
+  const redoStack = useRef<CellData[][][]>([]);
+
+  const deepCloneBoard = (b: CellData[][]) => b.map(row => row.map(cell => ({ ...cell, notes: [...cell.notes] })));
+
+  const boardsAreEqual = (a: CellData[][], b: CellData[][]) => {
+    for (let i = 0; i < a.length; i++) {
+      for (let j = 0; j < a[i].length; j++) {
+        if (a[i][j].value !== b[i][j].value) return false;
+        if (a[i][j].notes.length !== b[i][j].notes.length) return false;
+        for (let k = 0; k < a[i][j].notes.length; k++) {
+          if (a[i][j].notes[k] !== b[i][j].notes[k]) return false;
+        }
+      }
+    }
+    return true;
+  };
 
   const handleCellChange = (row: number, col: number, value: number | null) => {
     setBoard(prev => {
-      const newBoard = prev.map(r => r.map(cell => ({ ...cell, notes: [...cell.notes] })));
+      const newBoard = deepCloneBoard(prev);
       if (pencilMode) {
         newBoard[row][col].value = null;
         setValid(isStructurallyValidSudoku(newBoard));
@@ -82,13 +95,35 @@ function App() {
         const isValid = isStructurallyValidSudoku(newBoard);
         setValid(isValid);
         if (isBoardFilled(newBoard) && isValid) {
-          // make all cell readOnly
-          // newBoard.forEach(row => row.forEach(cell => cell.isInitial = true));
           confetti();
         }
       }
+      // Only push if prev is not already the last entry
+      if (
+        !boardsAreEqual(prev, newBoard) &&
+        (undoStack.current.length === 0 || !boardsAreEqual(undoStack.current[undoStack.current.length - 1], prev))
+      ) {
+        undoStack.current.push(deepCloneBoard(prev));
+        redoStack.current.length = 0;
+      }
       return newBoard;
     });
+  };
+
+  const handleUndo = () => {
+    if (undoStack.current.length > 0) {
+      redoStack.current.push(deepCloneBoard(board));
+      const prevBoard = undoStack.current.pop();
+      if (prevBoard) setBoard(deepCloneBoard(prevBoard));
+    }
+  };
+
+  const handleRedo = () => {
+    if (redoStack.current.length > 0) {
+      undoStack.current.push(deepCloneBoard(board));
+      const nextBoard = redoStack.current.pop();
+      if (nextBoard) setBoard(deepCloneBoard(nextBoard));
+    }
   };
 
   const selectedValue = selectedCell ? board[selectedCell.row][selectedCell.col].value : null;
@@ -111,8 +146,26 @@ function App() {
 
   useEffect(() => {
     window.addEventListener('keydown', handleArrowNavigation);
-    return () => window.removeEventListener('keydown', handleArrowNavigation);
-  }, [handleArrowNavigation]);
+    // Undo/Redo keybindings
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.ctrlKey && e.key === 'z' && !e.shiftKey) {
+        e.preventDefault();
+        console.log('Undo stack:', undoStack.current.length);
+        handleUndo();
+      } else if (e.ctrlKey && (e.key === 'Z' || (e.key === 'z' && e.shiftKey))) {
+        e.preventDefault();
+        handleRedo();
+      } else if (e.ctrlKey && e.key === 'y') {
+        e.preventDefault();
+        handleRedo();
+      }
+    };
+    window.addEventListener('keydown', handleKeyDown);
+    return () => {
+      window.removeEventListener('keydown', handleArrowNavigation);
+      window.removeEventListener('keydown', handleKeyDown);
+    };
+  }, [handleArrowNavigation, board]);
 
   useEffect(() => {
     const handler = () => setPencilMode(p => !p);
@@ -123,7 +176,6 @@ function App() {
   // Deselect cell when clicking outside the grid
   useEffect(() => {
     function handleClickOutside(e: MouseEvent) {
-      // Only clear if click is not inside a cell or grid
       const grid = document.getElementById('sudoku-grid');
       if (grid && !grid.contains(e.target as Node)) {
         setSelectedCell(null);
