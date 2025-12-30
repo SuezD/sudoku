@@ -1,3 +1,5 @@
+import React from 'react';
+
 import './App.css';
 import GameBoard from './components/GameBoard';
 import NumberPad from './components/NumberPad';
@@ -66,6 +68,7 @@ function App() {
   const [selectedCell, setSelectedCell] = useState<{ row: number; col: number } | null>(null);
   const undoStack = useRef<CellData[][][]>([]);
   const redoStack = useRef<CellData[][][]>([]);
+  const [shake, setShake] = useState(false);
   const [timeElapsed, setTimeElapsed] = useState<string>('00:00');
 
   useEffect(() => {
@@ -139,7 +142,12 @@ function App() {
   };
 
   useEffect(() => {
-    setValid(isStructurallyValidSudoku(board));
+    const isValid = isStructurallyValidSudoku(board);
+    setValid(isValid);
+    if (isValid === false) {
+      setShake(true);
+      setTimeout(() => setShake(false), 500);
+    }
   }, [board]);
 
   const handleUndo = useCallback(() => {
@@ -221,17 +229,23 @@ function App() {
       <div className="main-content">
         <h1 style={{ textAlign: 'center' }}>Sudoku</h1>
         <div className="header-info">
-          <div>{difficulty+"#"+seed}</div>
+          <div>{difficulty + "#" + seed}</div>
+          <div style={{ color: 'red', fontWeight: 'bold' }}>{valid === false ? "INVALID INPUT" : ""}</div>
           <div>{timeElapsed}</div>
         </div>
         <div id="sudoku-grid">
-          <GameBoard
-            board={board}
-            onChange={handleCellChange}
-            onCellSelect={(row, col) => setSelectedCell({ row, col })}
-            selectedValue={selectedValue}
-            selectedCell={selectedCell}
-          />
+          <div
+            className={shake ? 'sudoku-grid-outline shake' : 'sudoku-grid-outline'}
+            style={valid === false ? { outline: '3px solid red', borderRadius: 8, transition: 'outline 0.2s' } : { outline: 'none', borderRadius: 8, transition: 'outline 0.2s' }}
+          >
+            <GameBoard
+              board={board}
+              onChange={handleCellChange}
+              onCellSelect={(row, col) => setSelectedCell({ row, col })}
+              selectedValue={selectedValue}
+              selectedCell={selectedCell}
+            />
+          </div>
           <div className="numberpad-container">
             <NumberPad
               onChange={handleCellChange}
@@ -241,9 +255,6 @@ function App() {
               pencilMode={pencilMode}
             />
           </div>
-        </div>
-        <div style={{ minHeight: 24, marginTop: 12, color: valid ? 'green' : 'red', fontWeight: 'bold', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-          {valid != null && !valid ? 'Solution is not valid!' : ''}
         </div>
       </div>
     </div>
