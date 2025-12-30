@@ -11,8 +11,14 @@ type CellProps = {
   selectedCell?: { row: number; col: number } | null;
 };
 
+function isMobile() {
+  return /Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
+}
+
 const Cell: React.FC<CellProps> = ({ value, row, col, onChange, onSelect, selectedValue, selectedCell }) => {
+  const mobile = isMobile();
   const inputRef = useRef<HTMLInputElement>(null);
+
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     let val = e.target.value;
     const match = val==='' ? null : val[val.length-1].match(/[1-9]/g);
@@ -126,7 +132,7 @@ const Cell: React.FC<CellProps> = ({ value, row, col, onChange, onSelect, select
         type="text"
         id={`cell-${row}-${col}`}
         value={value?.value ?? ''}
-        readOnly={readOnly}
+        readOnly={readOnly || mobile}
         onChange={handleChange}
         style={{
           caretColor: 'transparent',
