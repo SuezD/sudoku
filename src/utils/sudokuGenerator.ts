@@ -1,4 +1,5 @@
 import { hasOneValidSolution } from "./sudokuSolver";
+import seedrandom from "seedrandom";
 
 export type CellData = {
   value: number | null;
@@ -14,22 +15,23 @@ function createEmptyBoard(size: number): Board {
   );
 }
 
-export function generateBoard(base: number, filledCells: number): Board {
-  return generateBoardWithBase(base, filledCells);
+export function generateBoard(base: number, filledCells: number, seed?: string): Board {
+  return generateBoardWithBase(base, filledCells, seed);
 }
 
-export function generateBoardWithBase(base: number = 3, filledCells: number): Board {
+export function generateBoardWithBase(base: number = 3, filledCells: number, seed?: string): Board {
   const size = base * base;
+  const rng = seedrandom(seed || "default");
   let board = generateBaseBoard(base);
 
-  board = shuffleDigits(board, base);
-  board = shuffleGroups(board, 'row', true, base); // Shuffle rows within bands
-  board = shuffleGroups(board, 'col', true, base); // Shuffle columns within stacks
-  board = shuffleGroups(board, 'row', false, base); // Shuffle row bands
-  board = shuffleGroups(board, 'col', false, base); // Shuffle column stacks
+  board = shuffleDigits(board, base, rng);
+  board = shuffleGroups(board, 'row', true, base, rng);
+  board = shuffleGroups(board, 'col', true, base, rng);
+  board = shuffleGroups(board, 'row', false, base, rng);
+  board = shuffleGroups(board, 'col', false, base, rng);
 
   const cellsToRemove = (size * size) - filledCells;
-  board = removeCells(board, cellsToRemove, base);
+  board = removeCells(board, cellsToRemove, base, rng);
 
   return board;
 }
@@ -47,19 +49,18 @@ function generateBaseBoard(base: number): Board {
   return board;
 }
 
-function shuffleArray<T>(array: T[]): T[] {
-  // use Fisher-Yates shuffle algorithm
+function shuffleArray<T>(array: T[], rng: () => number): T[] {
   const arr = array.slice();
   for (let i = arr.length - 1; i > 0; i--) {
-    const j = Math.floor(Math.random() * (i + 1));
+    const j = Math.floor(rng() * (i + 1));
     [arr[i], arr[j]] = [arr[j], arr[i]];
   }
   return arr;
 }
 
-function shuffleDigits(board: Board, base: number): Board {
+function shuffleDigits(board: Board, base: number, rng: () => number): Board {
   const size = base * base;
-  const shuffledDigits = shuffleArray(Array.from({ length: size }, (_, i) => i + 1));
+  const shuffledDigits = shuffleArray(Array.from({ length: size }, (_, i) => i + 1), rng);
   return board.map(row =>
     row.map(cell =>
       cell.value !== null
@@ -73,14 +74,15 @@ function shuffleGroups(
   board: Board,
   groupType: 'row' | 'col',
   withinBand: boolean,
-  base: number
+  base: number,
+  rng: () => number
 ): Board {
   const size = base * base;
   const newBoard: Board = createEmptyBoard(size);
 
   if (withinBand) {
     for (let band = 0; band < base; band++) {
-      const indices = shuffleArray(Array.from({ length: base }, (_, i) => i));
+      const indices = shuffleArray(Array.from({ length: base }, (_, i) => i), rng);
       for (let i = 0; i < base; i++) {
         if (groupType === 'row') {
           const sourceRow = band * base + indices[i];
@@ -96,7 +98,7 @@ function shuffleGroups(
       }
     }
   } else {
-    const bands = shuffleArray(Array.from({ length: base }, (_, i) => i));
+    const bands = shuffleArray(Array.from({ length: base }, (_, i) => i), rng);
     for (let bandIndex = 0; bandIndex < base; bandIndex++) {
       const band = bands[bandIndex];
       for (let i = 0; i < base; i++) {
@@ -117,7 +119,7 @@ function shuffleGroups(
   return newBoard;
 }
 
-function removeCells(board: Board, cellsToRemove: number, base: number): Board {
+function removeCells(board: Board, cellsToRemove: number, base: number, rng: () => number): Board {
   const size = base * base;
   let removed = 0;
   const newBoard: Board = board.map(row => row.map(cell => ({ ...cell })));
@@ -128,7 +130,7 @@ function removeCells(board: Board, cellsToRemove: number, base: number): Board {
       positions.push({ r, c });
     }
   }
-  const shuffledPositions = shuffleArray(positions);
+  const shuffledPositions = shuffleArray(positions, rng);
 
   for (let i = 0; i < shuffledPositions.length && removed < cellsToRemove; i++) {
     const { r, c } = shuffledPositions[i];

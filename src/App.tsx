@@ -43,7 +43,22 @@ function App() {
   // fill between 17 and 40 cells
   const filledCells = useMemo(() => Math.floor(Math.random() * (40 - 17 + 1)) + 17, []);
   const difficulty = useMemo(() => filledCells <= 22 ? 'Hard' : filledCells <= 30 ? 'Medium' : 'Easy', [filledCells]);
-  const [board, setBoard] = useState<CellData[][]>(() => generateBoard(BASE, filledCells));
+
+  function createOrGetSeedFromUrl() {
+    const path = window.location.pathname.replace(/^\//, "");
+    if (path && /^[a-zA-Z0-9]{5}$/.test(path)) return path;
+
+    const chars = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
+    let seed = '';
+    for (let i = 0; i < 5; i++) {
+      seed += chars.charAt(Math.floor(Math.random() * chars.length));
+    }
+    window.history.replaceState(null, '', `/${seed}`);
+    return seed;
+  }
+
+  const [seed] = useState(createOrGetSeedFromUrl);
+  const [board, setBoard] = useState<CellData[][]>(() => generateBoard(BASE, filledCells, seed));
   const [valid, setValid] = useState<boolean | null>(null);
   const [pencilMode, setPencilMode] = useState<boolean>(false);
   const [selectedCell, setSelectedCell] = useState<{ row: number; col: number } | null>(null);
@@ -120,7 +135,7 @@ function App() {
       return newBoard;
     });
   };
-  // Always validate board after setBoard
+
   useEffect(() => {
     setValid(isStructurallyValidSudoku(board));
   }, [board]);
@@ -203,9 +218,8 @@ function App() {
     <div className="App">
       <div className="main-content">
         <h1 style={{ textAlign: 'center' }}>Sudoku</h1>
-        {/* smaller header-like section under h1 for game difficulty (left) and timer on right */}
         <div className="header-info">
-          <div>{difficulty}</div>
+          <div>{difficulty+"#"+seed}</div>
           <div>{timeElapsed}</div>
         </div>
         <div id="sudoku-grid">
