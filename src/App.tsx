@@ -89,7 +89,7 @@ function App() {
     }
     window.addEventListener('hashchange', onHashChange);
     return () => window.removeEventListener('hashchange', onHashChange);
-  }, []);
+  }, [seed, filledCells]);
 
   const deepCloneBoard = (b: CellData[][]) => b.map(row => row.map(cell => ({ ...cell, notes: [...cell.notes] })));
 
