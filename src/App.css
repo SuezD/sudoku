@@ -12,7 +12,7 @@ html, body {
 :root {
   --cell-size: min(10vw, 10vh);
   --sudoku-number-font-size: calc(var(--cell-size) * 0.65);
-  --sudoku-note-font-size: calc(var(--cell-size) * 0.33);
+  --sudoku-note-font-size: calc(var(--cell-size) * 0.20);
 }
 
 .sudoku-grid {
