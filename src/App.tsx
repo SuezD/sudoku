@@ -187,28 +187,31 @@ function App() {
   }, []);
 
   return (
-    <div className="App" style={{ minHeight: '100vh', display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center' }}>
-      <h1>Sudoku</h1>
-      <div id="sudoku-grid">
-        <GameBoard
-          board={board}
-          onChange={handleCellChange}
-          onCellSelect={(row, col) => setSelectedCell({ row, col })}
-          selectedValue={selectedValue}
-          selectedCell={selectedCell}
-        />
-        <div style={{ marginTop: 24, width: '100%', maxWidth: 600 }}>
-          <NumberPad
-            onChange={handleCellChange}
-            selectedCell={selectedCell}
+    <div className="App">
+      <div className="main-content">
+        <h1 style={{ textAlign: 'center' }}>Sudoku</h1>
+
+        <div id="sudoku-grid">
+          <GameBoard
             board={board}
-            onPencilClick={() => setPencilMode(!pencilMode)}
-            pencilMode={pencilMode}
+            onChange={handleCellChange}
+            onCellSelect={(row, col) => setSelectedCell({ row, col })}
+            selectedValue={selectedValue}
+            selectedCell={selectedCell}
           />
+          <div className="numberpad-container">
+            <NumberPad
+              onChange={handleCellChange}
+              selectedCell={selectedCell}
+              board={board}
+              onPencilClick={() => setPencilMode(!pencilMode)}
+              pencilMode={pencilMode}
+            />
+          </div>
         </div>
-      </div>
-      <div style={{ minHeight: 24, marginTop: 12, color: valid ? 'green' : 'red', fontWeight: 'bold', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-        {valid != null && !valid ? 'Solution is not valid!' : ''}
+        <div style={{ minHeight: 24, marginTop: 12, color: valid ? 'green' : 'red', fontWeight: 'bold', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+          {valid != null && !valid ? 'Solution is not valid!' : ''}
+        </div>
       </div>
     </div>
   );

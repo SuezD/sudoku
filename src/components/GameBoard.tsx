@@ -31,8 +31,8 @@ const GameBoard: React.FC<GameBoardProps> = ({ board, onChange, onCellSelect, se
   }
 
   return (
-    <div style={{ width: '100%', maxWidth: 600, aspectRatio: '1 / 1', display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', width: '100%', height: '100%' }}>
+    <div className="gameboard-container">
+      <div className="gameboard" style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gridTemplateRows: 'repeat(3, 1fr)', width: '100%', height: '100%' }}>
         {subgrids}
       </div>
     </div>

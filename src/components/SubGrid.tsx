@@ -23,13 +23,27 @@ function Subgrid({ data, sgRow, sgCol, onChange, onCellSelect, selectedValue, se
         width: '100%',
         height: '100%',
         tableLayout: 'fixed',
+        margin: 0,
+        padding: 0,
+        boxSizing: 'border-box',
       }}
     >
       <tbody>
         {data.map((rowVals, rIdx) => (
           <tr key={rIdx}>
             {rowVals.map((val, cIdx) => (
-              <td key={cIdx} style={{ padding: 0, border: '1px solid #ccc', verticalAlign: 'middle' }}>
+              <td
+                key={cIdx}
+                style={{
+                  padding: 0,
+                  border: '1px solid #ccc',
+                  verticalAlign: 'middle',
+                  width: '33.33%',
+                  height: '33.33%',
+                  boxSizing: 'border-box',
+                  overflow: 'hidden',
+                }}
+              >
                 <Cell
                   key={`${sgRow + rIdx}-${sgCol + cIdx}`}
                   value={val}

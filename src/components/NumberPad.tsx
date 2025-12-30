@@ -21,7 +21,7 @@ const NumberPad: React.FC<NumberPadProps> = ({ onChange, selectedCell, board, on
   };
 
   return (
-  <div style={{ display: "flex", justifyContent: "space-between", width: '100%', gap: '0.5rem' }}>
+  <div className="numberpad-root" style={{ display: "flex", justifyContent: "space-between", width: '100%', gap: '0.5rem' }}>
     {numbers.map((num) => (
       <button
         key={num}
@@ -29,9 +29,15 @@ const NumberPad: React.FC<NumberPadProps> = ({ onChange, selectedCell, board, on
         onClick={() => handleNumberClick(num)}
         style={{
           flex: 1,
-          height: '100%',
-          fontSize: '2em',
+          height: '3.5rem',
+          minHeight: '2.5rem',
+          fontSize: 'var(--sudoku-number-font-size)',
+          fontWeight: 'bold',
           cursor: "pointer",
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          textAlign: 'center',
         }}
         aria-label={`Number ${num}`}
       >
@@ -42,8 +48,10 @@ const NumberPad: React.FC<NumberPadProps> = ({ onChange, selectedCell, board, on
       onClick={onPencilClick}
       style={{
         flex: 1,
-        height: '100%',
-        fontSize: '1.7em',
+        height: '3.5rem',
+        minHeight: '2.5rem',
+        fontSize: 'calc(var(--sudoku-number-font-size) * 0.85)',
+        fontWeight: 'bold',
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'center',

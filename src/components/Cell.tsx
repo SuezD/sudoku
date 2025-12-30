@@ -77,7 +77,7 @@ const Cell: React.FC<CellProps> = ({ value, row, col, onChange, onSelect, select
             : readOnly
               ? '#eee'
               : '#fff',
-        fontSize: '2em',
+        fontSize: 'var(--sudoku-number-font-size)',
         position: 'relative',
         boxSizing: 'border-box',
       }}
@@ -96,7 +96,7 @@ const Cell: React.FC<CellProps> = ({ value, row, col, onChange, onSelect, select
           top: 0,
           left: 0,
           boxSizing: 'border-box',
-          fontSize: '0.4em',
+          fontSize: 'clamp(0.4em, 1.2vw, 0.7em)',
           color: '#888',
           pointerEvents: 'none',
         }}>

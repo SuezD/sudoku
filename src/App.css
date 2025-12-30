@@ -1,3 +1,106 @@
+:root {
+  --sudoku-number-font-size: clamp(1.2rem, 7vw, 2em);
+}
+
+@media (min-width: 600px) {
+  :root {
+    --sudoku-number-font-size: 2em;
+  }
+}
+@media (max-width: 600px) {
+  .numberpad-root button {
+    font-size: clamp(1.5rem, 5vw, 2.4em);
+  }
+  .numberpad-root button:last-child {
+    font-size: clamp(1.3rem, 4vw, 2em);
+  }
+}
+
+.App h1 {
+  font-size: min(2.8rem, 16vw);
+  max-width: 600px;
+  margin: 2rem auto 1rem auto;
+  text-align: center;
+  width: 100%;
+  line-height: 1.1;
+}
+
+@media (max-width: 600px) {
+  .App h1 {
+    font-size: clamp(2rem, 4.67vw, 2.8rem);
+  }
+}
+
+.numberpad-root,
+.numberpad-container,
+.numberpad-container > *,
+.gameboard,
+.gameboard-container {
+  width: 600px;
+  max-width: 600px;
+  box-sizing: border-box;
+}
+
+.numberpad-root {
+  overflow-x: hidden;
+}
+
+.numberpad-root button {
+  min-width: 0;
+  max-width: 100%;
+  box-sizing: border-box;
+}
+
+.numberpad-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin: 24px auto 0 auto;
+}
+
+@media (max-width: 600px) {
+  .numberpad-root,
+  .numberpad-container,
+  .numberpad-container > *,
+  .gameboard,
+  .gameboard-container {
+    width: 98vw !important;
+    max-width: 98vw !important;
+    min-width: 0 !important;
+    box-sizing: border-box;
+  }
+  .gameboard {
+    aspect-ratio: 1 / 1;
+  }
+  .numberpad-container {
+    margin: 16px auto 0 auto;
+  }
+}
+
+@media (max-width: 400px) {
+  .numberpad-root {
+    display: grid !important;
+    grid-template-columns: repeat(5, 1fr);
+    grid-template-rows: repeat(2, 1fr);
+    gap: 0.5rem;
+  }
+  .numberpad-root button {
+    width: 100%;
+    min-width: 0;
+    max-width: 100%;
+    height: 3rem;
+  }
+}
+
+.main-content {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 100vh;
+  width: 100vw;
+  box-sizing: border-box;
+}
 .App {
   text-align: center;
 }
@@ -26,6 +129,40 @@
 
 .App-link {
   color: #61dafb;
+}
+
+.gameboard-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 100vw;
+  max-width: 100vw;
+  padding: 0;
+  margin: 0 auto;
+  box-sizing: border-box;
+}
+
+.gameboard {
+  width: 100%;
+  aspect-ratio: 1 / 1;
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  grid-template-rows: repeat(3, 1fr);
+  background: #fff;
+  border: 2px solid #333;
+  box-sizing: border-box;
+}
+
+@media (max-width: 600px) {
+  .gameboard {
+    width: 98vw;
+    max-width: 98vw;
+    min-width: 0;
+    aspect-ratio: 1 / 1;
+  }
+  .gameboard-container {
+    padding: 0;
+  }
 }
 
 @keyframes App-logo-spin {
