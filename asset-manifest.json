@@ -1,13 +1,13 @@
 {
   "files": {
-    "main.css": "/sudoku/static/css/main.35029958.css",
+    "main.css": "/sudoku/static/css/main.ff6f94a0.css",
     "main.js": "/sudoku/static/js/main.d63467a6.js",
     "index.html": "/sudoku/index.html",
-    "main.35029958.css.map": "/sudoku/static/css/main.35029958.css.map",
+    "main.ff6f94a0.css.map": "/sudoku/static/css/main.ff6f94a0.css.map",
     "main.d63467a6.js.map": "/sudoku/static/js/main.d63467a6.js.map"
   },
   "entrypoints": [
-    "static/css/main.35029958.css",
+    "static/css/main.ff6f94a0.css",
     "static/js/main.d63467a6.js"
   ]
 }
