@@ -69,7 +69,6 @@ function App() {
       const newBoard = deepCloneBoard(prev);
       if (pencilMode) {
         newBoard[row][col].value = null;
-        setValid(isStructurallyValidSudoku(newBoard));
         let notes = newBoard[row][col].notes;
         if (value === null) {
           newBoard[row][col].notes = [];
@@ -93,7 +92,6 @@ function App() {
         }
         newBoard[row][col].notes = [];
         const isValid = isStructurallyValidSudoku(newBoard);
-        setValid(isValid);
         if (isBoardFilled(newBoard) && isValid) {
           confetti();
         }
@@ -109,6 +107,10 @@ function App() {
       return newBoard;
     });
   };
+  // Always validate board after setBoard
+  useEffect(() => {
+    setValid(isStructurallyValidSudoku(board));
+  }, [board]);
 
   const handleUndo = () => {
     if (undoStack.current.length > 0) {
@@ -150,7 +152,6 @@ function App() {
     const handleKeyDown = (e: KeyboardEvent) => {
       if (e.ctrlKey && e.key === 'z' && !e.shiftKey) {
         e.preventDefault();
-        console.log('Undo stack:', undoStack.current.length);
         handleUndo();
       } else if (e.ctrlKey && (e.key === 'Z' || (e.key === 'z' && e.shiftKey))) {
         e.preventDefault();
