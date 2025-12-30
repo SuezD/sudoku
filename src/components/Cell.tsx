@@ -61,10 +61,10 @@ const Cell: React.FC<CellProps> = ({ value, row, col, onChange, onSelect, select
   }, [selectedCell, row, col]);
 
   const borderStyle: React.CSSProperties = {
-    borderTop: row % 3 === 0 ? '2.5px solid #333' : '1px solid #bbb',
-    borderLeft: col % 3 === 0 ? '2.5px solid #333' : '1px solid #bbb',
-    borderRight: col === 8 ? '2.5px solid #333' : undefined,
-    borderBottom: row === 8 ? '2.5px solid #333' : undefined,
+    borderTop: '1px solid #bbb',
+    borderLeft: '1px solid #bbb',
+    borderRight: col === 8 ? '1px solid #bbb' : undefined,
+    borderBottom: row === 8 ? '1px solid #bbb' : undefined,
     background: isHighlighted
       ? '#fff066ff'
       : isRelated && !isHighlighted
@@ -91,27 +91,36 @@ const Cell: React.FC<CellProps> = ({ value, row, col, onChange, onSelect, select
       onKeyDown={handleKeyDown}
     >
       {value?.notes && value?.notes.length > 0 && (
-        <div style={{
-          display: 'grid',
-          gridTemplateColumns: 'repeat(3, 1fr)',
-          gridTemplateRows: 'repeat(3, 1fr)',
-          width: '100%',
-          height: '100%',
-          position: 'absolute',
-          top: 0,
-          left: 0,
-          boxSizing: 'border-box',
-          fontSize: 'clamp(0.4em, 1.2vw, 0.7em)',
-          color: '#888',
-          pointerEvents: 'none',
-        }}>
-          {[1, 2, 3, 4, 5, 6, 7, 8, 9].map(n => (
-            <div key={n} style={{ textAlign: 'center' }}>
-              {value.notes.includes(n) ? n : ''}
-            </div>
-          ))}
-        </div>
-      )}
+          <div style={{
+            display: 'grid',
+            gridTemplateColumns: 'repeat(3, 1fr)',
+            gridTemplateRows: 'repeat(3, 1fr)',
+            width: '100%',
+            height: '100%',
+            position: 'absolute',
+            top: 0,
+            left: 0,
+            boxSizing: 'border-box',
+            fontSize: 'var(--sudoku-note-font-size)',
+            color: '#888',
+            pointerEvents: 'none',
+            overflow: 'hidden',
+          }}>
+            {[1, 2, 3, 4, 5, 6, 7, 8, 9].map(n => (
+              <span key={n} style={{
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                width: '100%',
+                height: '100%',
+                margin: 0,
+                padding: 0,
+                opacity: value.notes.includes(n) ? 1 : 0,
+                fontWeight: 500,
+              }}>{n}</span>
+            ))}
+          </div>
+        )}
       <input
         ref={inputRef}
         type="text"

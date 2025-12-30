@@ -12,8 +12,40 @@ type GameBoardProps = {
 
 const GameBoard: React.FC<GameBoardProps> = ({ board, onChange, onCellSelect, selectedValue, selectedCell }) => {
   return (
-    <div className="gameboard-container">
-      <div className="gameboard sudoku-grid">
+    <div className="gameboard-container" style={{position: 'relative'}}>
+      <div className="gameboard sudoku-grid" style={{position: 'relative'}}>
+        {[1,2].map(i => (
+          <div
+            key={`vline-${i}`}
+            style={{
+              position: 'absolute',
+              top: 0,
+              left: `${(i*100/9*3).toFixed(4)}%`,
+              width: '2.5px',
+              height: '100%',
+              background: '#333',
+              zIndex: 10,
+              transform: 'translateX(-1.25px)',
+              pointerEvents: 'none',
+            }}
+          />
+        ))}
+        {[1,2].map(i => (
+          <div
+            key={`hline-${i}`}
+            style={{
+              position: 'absolute',
+              left: 0,
+              top: `${(i*100/9*3).toFixed(4)}%`,
+              height: '2.5px',
+              width: '100%',
+              background: '#333',
+              zIndex: 10,
+              transform: 'translateY(-1.25px)',
+              pointerEvents: 'none',
+            }}
+          />
+        ))}
         {board.map((row, rowIdx) =>
           row.map((cell, colIdx) => (
             <Cell
