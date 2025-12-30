@@ -102,36 +102,47 @@ const Cell: React.FC<CellProps> = ({ value, row, col, onChange, onSelect, select
       onKeyDown={handleKeyDown}
     >
       {value?.notes && value?.notes.length > 0 && (
-          <div style={{
-            display: 'grid',
-            gridTemplateColumns: 'repeat(3, 1fr)',
-            gridTemplateRows: 'repeat(3, 1fr)',
-            width: '100%',
-            height: '100%',
-            position: 'absolute',
-            top: 0,
-            left: 0,
-            boxSizing: 'border-box',
-            fontSize: 'var(--sudoku-note-font-size)',
-            color: '#888',
-            pointerEvents: 'none',
-            overflow: 'hidden',
-          }}>
-            {[1, 2, 3, 4, 5, 6, 7, 8, 9].map(n => (
-              <span key={n} style={{
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                width: '100%',
-                height: '100%',
-                margin: 0,
-                padding: 0,
-                opacity: value.notes.includes(n) ? 1 : 0,
-                fontWeight: 500,
-              }}>{n}</span>
-            ))}
-          </div>
-        )}
+        <div style={{
+          display: 'grid',
+          gridTemplateColumns: 'repeat(3, 1fr)',
+          gridTemplateRows: 'repeat(3, 1fr)',
+          width: '100%',
+          height: '100%',
+          position: 'absolute',
+          top: 0,
+          left: 0,
+          boxSizing: 'border-box',
+          fontSize: 'var(--sudoku-note-font-size)',
+          color: '#888',
+          pointerEvents: 'none',
+          overflow: 'hidden',
+        }}>
+          {[1, 2, 3, 4, 5, 6, 7, 8, 9].map(n => {
+            const highlightNote = selectedValue != null && value.notes.includes(n) && n === selectedValue;
+            return (
+              <span
+                key={n}
+                style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  width: '100%',
+                  height: '100%',
+                  margin: 0,
+                  padding: 0,
+                  opacity: value.notes.includes(n) ? 1 : 0,
+                  fontWeight: highlightNote ? 'bold' : 500,
+                  color: highlightNote ? '#280707ff' : '#888',
+                  boxSizing: 'border-box',
+                  backgroundColor: highlightNote ? '#ffff00aa' : 'transparent',
+                }}
+              >
+                {n}
+              </span>
+            );
+          })}
+        </div>
+      )}
       <input
         ref={inputRef}
         type="text"

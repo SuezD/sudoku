@@ -66,6 +66,22 @@ function App() {
   const [valid, setValid] = useState<boolean | null>(null);
   const [pencilMode, setPencilMode] = useState<boolean>(false);
   const [selectedCell, setSelectedCell] = useState<{ row: number; col: number } | null>(null);
+  // Clear highlight if selectedCell changes to an empty cell
+  useEffect(() => {
+    if (selectedCell) {
+      const v = board[selectedCell.row][selectedCell.col].value;
+      if (v != null) {
+        setHighlightValue(v);
+      } else {
+        setHighlightValue(null);
+      }
+    } else {
+      setHighlightValue(null);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [selectedCell]);
+  // Track the last highlighted value (from cell select or note input)
+  const [highlightValue, setHighlightValue] = useState<number | null>(null);
   const undoStack = useRef<CellData[][][]>([]);
   const redoStack = useRef<CellData[][][]>([]);
   const [shake, setShake] = useState(false);
@@ -110,6 +126,11 @@ function App() {
   };
 
   const handleCellChange = (row: number, col: number, value: number | null) => {
+    if (pencilMode && value != null) {
+      setHighlightValue(value);
+    } else if (!pencilMode && value != null) {
+      setHighlightValue(value);
+    }
     setBoard(prev => {
       const newBoard = deepCloneBoard(prev);
       if (pencilMode) {
@@ -179,6 +200,8 @@ function App() {
   }, [board]);
 
   const selectedValue = selectedCell ? board[selectedCell.row][selectedCell.col].value : null;
+  // If a cell is selected and has a value, highlight that value
+  const effectiveHighlight = selectedValue != null ? selectedValue : highlightValue;
 
   const handleArrowNavigation = useCallback((e: KeyboardEvent) => {
     const size = 9;
@@ -240,11 +263,6 @@ function App() {
     <div className="App">
       <div className="main-content">
         <h1 style={{ textAlign: 'center' }}>Sudoku</h1>
-        <div className="header-info">
-          <div>{difficulty + "#" + seed}</div>
-          <div style={{ color: 'red', fontWeight: 'bold' }}>{valid === false ? "INVALID INPUT" : ""}</div>
-          <div>{timeElapsed}</div>
-        </div>
         <div id="sudoku-grid">
           <div
             className={shake ? 'sudoku-grid-outline shake' : 'sudoku-grid-outline'}
@@ -253,10 +271,23 @@ function App() {
             <GameBoard
               board={board}
               onChange={handleCellChange}
-              onCellSelect={(row, col) => setSelectedCell({ row, col })}
-              selectedValue={selectedValue}
+              onCellSelect={(row, col) => {
+                setSelectedCell({ row, col });
+                const v = board[row][col].value;
+                if (v != null) {
+                  setHighlightValue(v);
+                } else {
+                  setHighlightValue(null);
+                }
+              }}
+              selectedValue={effectiveHighlight}
               selectedCell={selectedCell}
             />
+          </div>
+          <div className="game-stats">
+            <div>{difficulty + " #" + seed}</div>
+            <div style={{ color: 'red', fontWeight: 'bold' }}>{valid === false ? "INVALID INPUT" : ""}</div>
+            <div>{timeElapsed}</div>
           </div>
           <div className="numberpad-container">
             <NumberPad
