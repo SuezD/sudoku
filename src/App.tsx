@@ -7,7 +7,7 @@ import confetti from 'canvas-confetti';
 
 import { Board, CellData, generateBoard } from './utils/sudokuGenerator';
 import { isStructurallyValidSudoku } from './utils/sudokuValidator';
-import { useState, useEffect, useCallback, useRef, useMemo } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 import seedrandom from 'seedrandom';
 
 const BASE = 3;
@@ -43,7 +43,16 @@ function removeValueFromNotes(board: CellData[][], row: number, col: number, val
 }
 
 function App() {
-  function parseHash() {
+  const createSeed = useCallback(() => {
+    const chars = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
+    let seed = '';
+    for (let i = 0; i < 5; i++) {
+      seed += chars.charAt(Math.floor(Math.random() * chars.length));
+    }
+    return seed;
+  }, [] );
+
+  const parseHash = useCallback(() => {
     const hash = window.location.hash.replace(/^#\/?/, "");
     const parts = hash.split("/");
     if (parts.length === 2) {
@@ -55,31 +64,22 @@ function App() {
 
     const defaultSeed = createSeed();
     return { difficulty: "easy", seed: defaultSeed };
-  }
+  }, [createSeed]);
 
-  function createSeed() {
-    const chars = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
-    let seed = '';
-    for (let i = 0; i < 5; i++) {
-      seed += chars.charAt(Math.floor(Math.random() * chars.length));
-    }
-    return seed;
+  function getInitialState() {
+    const parsed = parseHash();
+    window.location.hash = `/${parsed.difficulty}/${parsed.seed}`;
+    const diff = parsed.difficulty.charAt(0).toUpperCase() + parsed.difficulty.slice(1).toLowerCase();
+    const { board, difficulty, seed } = generateBoardWithDifficulty(BASE, parsed.seed, diff as 'Easy' | 'Medium' | 'Hard');
+    return { seed, difficulty, board };
   }
-
-    function getInitialState() {
-      const parsed = parseHash();
-      window.location.hash = `/${parsed.difficulty}/${parsed.seed}`;
-      const diff = parsed.difficulty.charAt(0).toUpperCase() + parsed.difficulty.slice(1).toLowerCase();
-      const { board, difficulty, seed } = generateBoardWithDifficulty(BASE, parsed.seed, diff as 'Easy' | 'Medium' | 'Hard');
-      return { seed, difficulty, board };
-    }
 
   const initial = getInitialState();
   const [seed, setSeed] = useState<string | null>(initial.seed);
   const [difficulty, setDifficulty] = useState<'Easy' | 'Medium' | 'Hard' | null>(initial.difficulty);
   const [board, setBoard] = useState<CellData[][] | null>(initial.board);
 
-  function generateBoardWithDifficulty(base: number, seed: string | null, difficulty: 'Easy' | 'Medium' | 'Hard' | null): { board: CellData[][], difficulty: 'Easy' | 'Medium' | 'Hard', seed: string } {
+  const generateBoardWithDifficulty = useCallback((base: number, seed: string | null, difficulty: 'Easy' | 'Medium' | 'Hard' | null): { board: CellData[][], difficulty: 'Easy' | 'Medium' | 'Hard', seed: string } => {
     if (difficulty) {
       const actualSeed = seed || createSeed();
       return { board: generateBoard(base, difficulty, actualSeed), difficulty, seed: actualSeed };
@@ -91,7 +91,7 @@ function App() {
     }
     const fallbackSeed = createSeed();
     return { board: generateBoard(base, 40, fallbackSeed), difficulty: 'Easy', seed: fallbackSeed };
-  }
+  }, [createSeed]);
 
   const [valid, setValid] = useState<boolean | null>(null);
   const [pencilMode, setPencilMode] = useState<boolean>(false);
@@ -108,7 +108,7 @@ function App() {
     } else {
       setHighlightValue(null);
     }
-  }, [selectedCell]);
+  }, [selectedCell, board]);
   // Track the last highlighted value (from cell select or note input)
   const [highlightValue, setHighlightValue] = useState<number | null>(null);
   const undoStack = useRef<CellData[][][]>([]);
@@ -126,7 +126,7 @@ function App() {
     }, 1000);
     return () => clearInterval(interval);
   }, []);
-
+  
   useEffect(() => {
     function onHashChange() {
       const parsed = parseHash();
@@ -139,7 +139,7 @@ function App() {
     }
     window.addEventListener('hashchange', onHashChange);
     return () => window.removeEventListener('hashchange', onHashChange);
-  }, []);
+  }, [generateBoardWithDifficulty, parseHash]);
 
   const deepCloneBoard = (b: CellData[][]) => b.map(row => row.map(cell => ({ ...cell, notes: [...cell.notes] })));
 
