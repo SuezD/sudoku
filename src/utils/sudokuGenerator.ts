@@ -116,14 +116,27 @@ function removeCellsByDifficulty(board: Board, difficulty: Difficulty, filledCel
         cluesPerBox[box1] > minCluesPerBox &&
         cluesPerBox[box2] > minCluesPerBox
       ) {
+        // Save old values
+        const oldValue1 = newBoard[r1][c1].value;
+        const oldIsInitial1 = newBoard[r1][c1].isInitial;
+        const oldValue2 = newBoard[r2][c2].value;
+        const oldIsInitial2 = newBoard[r2][c2].isInitial;
         newBoard[r1][c1].value = null;
         newBoard[r1][c1].isInitial = false;
         newBoard[r2][c2].value = null;
         newBoard[r2][c2].isInitial = false;
-        // Check unique solution if needed (skipped for brevity)
-        cluesPerBox[box1]--;
-        cluesPerBox[box2]--;
-        removed += 2;
+        // Check unique solution
+        if (hasOneValidSolution(newBoard, base)) {
+          cluesPerBox[box1]--;
+          cluesPerBox[box2]--;
+          removed += 2;
+        } else {
+          // Restore if not unique
+          newBoard[r1][c1].value = oldValue1;
+          newBoard[r1][c1].isInitial = oldIsInitial1;
+          newBoard[r2][c2].value = oldValue2;
+          newBoard[r2][c2].isInitial = oldIsInitial2;
+        }
       }
     }
   } else {
@@ -131,11 +144,20 @@ function removeCellsByDifficulty(board: Board, difficulty: Difficulty, filledCel
       const { r, c } = positions[i];
       const box = getBoxIndex(r, c);
       if (newBoard[r][c].value !== null && cluesPerBox[box] > minCluesPerBox) {
+        // Save old values
+        const oldValue = newBoard[r][c].value;
+        const oldIsInitial = newBoard[r][c].isInitial;
         newBoard[r][c].value = null;
         newBoard[r][c].isInitial = false;
-        // Check unique solution if needed (skipped for brevity)
-        cluesPerBox[box]--;
-        removed++;
+        // Check unique solution
+        if (hasOneValidSolution(newBoard, base)) {
+          cluesPerBox[box]--;
+          removed++;
+        } else {
+          // Restore if not unique
+          newBoard[r][c].value = oldValue;
+          newBoard[r][c].isInitial = oldIsInitial;
+        }
       }
     }
   }
@@ -147,23 +169,6 @@ function removeCellsByDifficulty(board: Board, difficulty: Difficulty, filledCel
   }
 
   return newBoard;
-}
-
-export function generateBoardWithBase(base: number = 3, filledCells: number, seed?: string): Board {
-  const size = base * base;
-  const rng = seedrandom(seed || "default");
-  let board = generateBaseBoard(base);
-
-  board = shuffleDigits(board, base, rng);
-  board = shuffleGroups(board, 'row', true, base, rng);
-  board = shuffleGroups(board, 'col', true, base, rng);
-  board = shuffleGroups(board, 'row', false, base, rng);
-  board = shuffleGroups(board, 'col', false, base, rng);
-
-  const cellsToRemove = (size * size) - filledCells;
-  board = removeCells(board, cellsToRemove, base, rng);
-
-  return board;
 }
 
 function generateBaseBoard(base: number): Board {
@@ -246,43 +251,5 @@ function shuffleGroups(
       }
     }
   }
-  return newBoard;
-}
-
-function removeCells(board: Board, cellsToRemove: number, base: number, rng: () => number): Board {
-  const size = base * base;
-  let removed = 0;
-  const newBoard: Board = board.map(row => row.map(cell => ({ ...cell })));
-
-  const positions: Array<{ r: number; c: number }> = [];
-  for (let r = 0; r < size; r++) {
-    for (let c = 0; c < size; c++) {
-      positions.push({ r, c });
-    }
-  }
-  const shuffledPositions = shuffleArray(positions, rng);
-
-  for (let i = 0; i < shuffledPositions.length && removed < cellsToRemove; i++) {
-    const { r, c } = shuffledPositions[i];
-    if (newBoard[r][c].value !== null) {
-      const oldValue = newBoard[r][c].value;
-      const oldIsInitial = newBoard[r][c].isInitial;
-      newBoard[r][c].value = null;
-      newBoard[r][c].isInitial = false;
-      if (hasOneValidSolution(newBoard, base)) {
-        removed++;
-      } else {
-        newBoard[r][c].value = oldValue;
-        newBoard[r][c].isInitial = oldIsInitial;
-      }
-    }
-  }
-
-  if (removed < cellsToRemove) {
-    const actualFilledCells = size * size - removed;
-    const requestedFilledCells = size * size - cellsToRemove;
-    console.warn(`Generated board with ${actualFilledCells} filled cells (requested ${requestedFilledCells}).`);
-  }
-
   return newBoard;
 }

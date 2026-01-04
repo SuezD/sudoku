@@ -1,4 +1,4 @@
-import { generateBoard, generateBoardWithBase } from '../utils/sudokuGenerator';
+import { generateBoard } from '../utils/sudokuGenerator';
 import { isStructurallyValidSudoku } from '../utils/sudokuValidator';
 
 describe('Sudoku Generator', () => {
@@ -18,12 +18,6 @@ describe('Sudoku Generator', () => {
     const board = generateBoard(3, 'Hard', 'testC');
     expect(board.length).toBe(9);
     expect(board.every(row => row.length === 9)).toBe(true);
-  });
-
-  it('should generate a 4x4 board with base 2', () => {
-    const board = generateBoardWithBase(2, 16, 'testD');
-    expect(board.length).toBe(4);
-    expect(board.every(row => row.length === 4)).toBe(true);
   });
 
   it('should not mutate the original board when shuffling', () => {
