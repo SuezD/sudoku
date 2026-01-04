@@ -48,8 +48,8 @@ const NumberPad: React.FC<NumberPadProps> = ({ onChange, selectedCell, board, on
               alignItems: 'center',
               justifyContent: 'center',
               textAlign: 'center',
-              background: isFilled ? '#e0e0e0' : '',
-              color: isFilled ? '#888' : '',
+              background: isFilled ? 'var(--numberpad-filled-bg)' : 'var(--button-bg)',
+              color: isFilled ? 'var(--numberpad-filled-color)' : 'var(--text-color)',
               opacity: isFilled ? 0.6 : 1,
             }}
             aria-label={`Number ${num}`}
@@ -70,8 +70,8 @@ const NumberPad: React.FC<NumberPadProps> = ({ onChange, selectedCell, board, on
           alignItems: 'center',
           justifyContent: 'center',
           cursor: "pointer",
-          background: pencilMode ? '#cce6ff' : '',
-          border: pencilMode ? '2px solid #3399ff' : '',
+          background: pencilMode ? 'var(--button-selected-bg)' : 'var(--button-bg)',
+          // border: pencilMode ? '2px solid var(--button-bg)' : '',
         }}
         aria-label="Pencil (notes)"
         title="Pencil (notes)"

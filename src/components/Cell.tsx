@@ -68,17 +68,17 @@ const Cell: React.FC<CellProps> = ({ value, row, col, onChange, onSelect, select
 
   const isSelected = selectedCell && selectedCell.row === row && selectedCell.col === col;
   const borderStyle: React.CSSProperties = {
-    borderTop: '1px solid #bbb',
-    borderLeft: '1px solid #bbb',
-    borderRight: col === 8 ? '1px solid #bbb' : undefined,
-    borderBottom: row === 8 ? '1px solid #bbb' : undefined,
+    borderTop: '1px solid var(--grid-outline-color)',
+    borderLeft: '1px solid var(--grid-outline-color)',
+    borderRight: col === 8 ? '1px solid var(--grid-outline-color)' : undefined,
+    borderBottom: row === 8 ? '1px solid var(--grid-outline-color)' : undefined,
     background: isHighlighted
-      ? '#fff066ff'
+      ? 'var(--cell-highlight-bg)'
       : isRelated && !isHighlighted
-        ? '#e0f7fa'
+        ? 'var(--cell-related-bg)'
         : readOnly
-          ? '#eee'
-          : '#fff',
+          ? 'var(--cell-readonly-bg)'
+          : 'var(--cell-bg)',
     fontSize: 'var(--sudoku-number-font-size)',
     width: '100%',
     height: '100%',
@@ -88,7 +88,7 @@ const Cell: React.FC<CellProps> = ({ value, row, col, onChange, onSelect, select
     justifyContent: 'center',
     position: 'relative',
     boxSizing: 'border-box',
-    outline: isSelected ? '2.5px solid #3399ff' : undefined,
+    outline: isSelected ? '2.5px solid var(--grid-thick-outline-color)' : undefined,
     outlineOffset: isSelected ? '-2px' : undefined,
     zIndex: isSelected ? 2 : undefined,
     borderRadius: isSelected ? '4px' : undefined,
@@ -113,7 +113,6 @@ const Cell: React.FC<CellProps> = ({ value, row, col, onChange, onSelect, select
           left: 0,
           boxSizing: 'border-box',
           fontSize: 'var(--sudoku-note-font-size)',
-          color: '#888',
           pointerEvents: 'none',
           overflow: 'hidden',
         }}>
@@ -132,9 +131,10 @@ const Cell: React.FC<CellProps> = ({ value, row, col, onChange, onSelect, select
                   padding: 0,
                   opacity: value.notes.includes(n) ? 1 : 0,
                   fontWeight: highlightNote ? 'bold' : 500,
-                  color: highlightNote ? '#280707ff' : '#888',
+                  color: highlightNote ? 'var(--cell-note-highlight-color)' : 'var(--cell-note-color)',
                   boxSizing: 'border-box',
-                  backgroundColor: highlightNote ? '#ffff00aa' : 'transparent',
+                  backgroundColor: highlightNote ? 'var(--cell-note-highlight)' : 'transparent',
+                  borderRadius: highlightNote ? '5px' : '0',
                 }}
               >
                 {n}
@@ -165,6 +165,7 @@ const Cell: React.FC<CellProps> = ({ value, row, col, onChange, onSelect, select
           background: 'transparent',
           cursor: readOnly ? 'default' : 'pointer',
           fontWeight: readOnly ? 'bold' : 'normal',
+          color: 'var(--cell-color)',
         }}
         aria-label="Sudoku cell"
         inputMode="numeric"
