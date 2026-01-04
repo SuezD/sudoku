@@ -32,10 +32,22 @@ html, body {
 }
 
 :root {
+  --app-bg: #fff;
+  --text-color: #222;
+  --grid-thick-outline-color: #333;
+  --grid-outline-color: #bbb;
   --cell-size: min(10vw, 10vh);
   --sudoku-number-font-size: calc(var(--cell-size) * 0.65);
   --sudoku-note-font-size: calc(var(--cell-size) * 0.25);
-
+  --cell-bg: #fff;
+  --cell-readonly-bg: #eee;
+  --cell-highlight-bg: #fff066ff;
+  --cell-related-bg: #e0f7fa;
+  --cell-note-color: #888;
+  --cell-note-highlight: #ffff00aa;
+  --cell-note-highlight-color: #280707ff;
+  --numberpad-filled-bg: #e0e0e0;
+  --numberpad-filled-color: #888;
 }
 
 .sudoku-grid {
@@ -48,11 +60,36 @@ html, body {
 
 .sudoku-cell {
   box-sizing: border-box;
-  border: 1px solid #bbb;
-  background: #fff;
+  border: 1px solid var(--grid-outline-color);
+  background: var(--cell-bg);
   display: flex;
   align-items: center;
   justify-content: center;
+}
+
+.sudoku-cell input:focus{
+  outline: none;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --app-bg: #171717;
+    --text-color: #faecd2;
+    --grid-thick-outline-color: #D09858;
+    --grid-outline-color: #4e3921;
+    --cell-bg: #1B1B1B; 
+    --cell-color: #faecd2;
+    --cell-readonly-bg: #202020;
+    --cell-highlight-bg: #3A4404;
+    --cell-related-bg: #231800;
+    --cell-note-color: #faecd288;
+    --cell-note-highlight: #3A4404;
+    --cell-note-highlight-color: #faecd2;
+    --numberpad-filled-bg: #444;
+    --numberpad-filled-color: #1B1B1B;
+    --button-bg: #222;
+    --button-selected-bg: #62431f;
+  }
 }
 
 @media (min-width: 600px) {
@@ -71,8 +108,13 @@ html, body {
   }
 }
 
+.App {
+  background: var(--app-bg);
+}
+
 .App h1 {
   font-size: min(2.8rem, 16vw);
+  color: var(--text-color);
   max-width: 600px;
   margin: 2rem auto 1rem auto;
   text-align: center;
@@ -114,7 +156,7 @@ html, body {
   flex: 1 1 0;
   width: 1%;
   border-radius: 5px !important;
-  border: 1px solid #bbb !important;
+  border: 1px solid var(--grid-outline-color) !important;
   box-shadow: none !important;
   outline: none;
 }
@@ -194,8 +236,7 @@ html, body {
 .gameboard {
   width: 100%;
   aspect-ratio: 1 / 1;
-  background: #fff;
-  border: 2px solid #333;
+  border: 2px solid var(--grid-thick-outline-color);
   box-sizing: border-box;
 }
 
@@ -221,6 +262,7 @@ html, body {
   line-height: 1.1;
   box-sizing: border-box;
   padding: 0 0.2rem;
+  color: var(--text-color);
 }
 
 @media (max-width: 600px) {
