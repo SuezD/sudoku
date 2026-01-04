@@ -15,6 +15,7 @@
 .shake {
   animation: shake 0.5s cubic-bezier(.36,.07,.19,.97) both;
 }
+
 html, body {
   margin: 0;
   padding: 0;
@@ -33,7 +34,7 @@ html, body {
 :root {
   --cell-size: min(10vw, 10vh);
   --sudoku-number-font-size: calc(var(--cell-size) * 0.65);
-  --sudoku-note-font-size: calc(var(--cell-size) * 0.13);
+  --sudoku-note-font-size: calc(var(--cell-size) * 0.25);
 }
 
 .sudoku-grid {
@@ -56,6 +57,7 @@ html, body {
 @media (min-width: 600px) {
   :root {
     --sudoku-number-font-size: 2em;
+    --sudoku-note-font-size: calc(var(--cell-size) * 0.13);
   }
 }
 @media (max-width: 600px) {
