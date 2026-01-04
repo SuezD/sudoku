@@ -50,7 +50,7 @@ function App() {
       seed += chars.charAt(Math.floor(Math.random() * chars.length));
     }
     return seed;
-  }, [] );
+  }, []);
 
   const parseHash = useCallback(() => {
     const hash = window.location.hash.replace(/^#\/?/, "");
@@ -66,19 +66,6 @@ function App() {
     return { difficulty: "easy", seed: defaultSeed };
   }, [createSeed]);
 
-  function getInitialState() {
-    const parsed = parseHash();
-    window.location.hash = `/${parsed.difficulty}/${parsed.seed}`;
-    const diff = parsed.difficulty.charAt(0).toUpperCase() + parsed.difficulty.slice(1).toLowerCase();
-    const { board, difficulty, seed } = generateBoardWithDifficulty(BASE, parsed.seed, diff as 'Easy' | 'Medium' | 'Hard');
-    return { seed, difficulty, board };
-  }
-
-  const initial = getInitialState();
-  const [seed, setSeed] = useState<string | null>(initial.seed);
-  const [difficulty, setDifficulty] = useState<'Easy' | 'Medium' | 'Hard' | null>(initial.difficulty);
-  const [board, setBoard] = useState<CellData[][] | null>(initial.board);
-
   const generateBoardWithDifficulty = useCallback((base: number, seed: string | null, difficulty: 'Easy' | 'Medium' | 'Hard' | null): { board: CellData[][], difficulty: 'Easy' | 'Medium' | 'Hard', seed: string } => {
     if (difficulty) {
       const actualSeed = seed || createSeed();
@@ -92,6 +79,19 @@ function App() {
     const fallbackSeed = createSeed();
     return { board: generateBoard(base, 40, fallbackSeed), difficulty: 'Easy', seed: fallbackSeed };
   }, [createSeed]);
+
+  function getInitialState() {
+    const parsed = parseHash();
+    window.location.hash = `/${parsed.difficulty}/${parsed.seed}`;
+    const diff = parsed.difficulty.charAt(0).toUpperCase() + parsed.difficulty.slice(1).toLowerCase();
+    const { board, difficulty, seed } = generateBoardWithDifficulty(BASE, parsed.seed, diff as 'Easy' | 'Medium' | 'Hard');
+    return { seed, difficulty, board };
+  }
+
+  const initial = getInitialState();
+  const [seed, setSeed] = useState<string | null>(initial.seed);
+  const [difficulty, setDifficulty] = useState<'Easy' | 'Medium' | 'Hard' | null>(initial.difficulty);
+  const [board, setBoard] = useState<CellData[][] | null>(initial.board);
 
   const [valid, setValid] = useState<boolean | null>(null);
   const [pencilMode, setPencilMode] = useState<boolean>(false);
@@ -126,7 +126,7 @@ function App() {
     }, 1000);
     return () => clearInterval(interval);
   }, []);
-  
+
   useEffect(() => {
     function onHashChange() {
       const parsed = parseHash();
