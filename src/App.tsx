@@ -82,34 +82,19 @@ function App() {
 
   function getInitialState() {
     const parsed = parseHash();
-    window.location.hash = `/${parsed.difficulty}/${parsed.seed}`;
     const diff = parsed.difficulty.charAt(0).toUpperCase() + parsed.difficulty.slice(1).toLowerCase();
     const { board, difficulty, seed } = generateBoardWithDifficulty(BASE, parsed.seed, diff as 'Easy' | 'Medium' | 'Hard');
     return { seed, difficulty, board };
   }
 
-  const initial = getInitialState();
-  const [seed, setSeed] = useState<string | null>(initial.seed);
-  const [difficulty, setDifficulty] = useState<'Easy' | 'Medium' | 'Hard' | null>(initial.difficulty);
-  const [board, setBoard] = useState<CellData[][] | null>(initial.board);
+  const [seed, setSeed] = useState<string | null>(() => getInitialState().seed);
+  const [difficulty, setDifficulty] = useState<'Easy' | 'Medium' | 'Hard' | null>(() => getInitialState().difficulty);
+  const [board, setBoard] = useState<CellData[][] | null>(() => getInitialState().board);
 
   const [valid, setValid] = useState<boolean | null>(null);
   const [pencilMode, setPencilMode] = useState<boolean>(false);
   const [selectedCell, setSelectedCell] = useState<{ row: number; col: number } | null>(null);
-  // Clear highlight if selectedCell changes to an empty cell
-  useEffect(() => {
-    if (selectedCell && board) {
-      const v = board[selectedCell.row][selectedCell.col].value;
-      if (v != null) {
-        setHighlightValue(v);
-      } else {
-        setHighlightValue(null);
-      }
-    } else {
-      setHighlightValue(null);
-    }
-  }, [selectedCell, board]);
-  // Track the last highlighted value (from cell select or note input)
+
   const [highlightValue, setHighlightValue] = useState<number | null>(null);
   const undoStack = useRef<CellData[][][]>([]);
   const redoStack = useRef<CellData[][][]>([]);
@@ -273,21 +258,24 @@ function App() {
   }, [handleArrowNavigation, handleUndo, handleRedo]);
 
   useEffect(() => {
-    const handler = () => setPencilMode(p => !p);
-    window.addEventListener('togglePencilMode', handler);
-    return () => window.removeEventListener('togglePencilMode', handler);
-  }, []);
-
-  // Deselect cell when clicking outside the grid
-  useEffect(() => {
+    // Deselect cell when clicking outside the grid
     function handleClickOutside(e: MouseEvent) {
       const grid = document.getElementById('sudoku-grid');
       if (grid && !grid.contains(e.target as Node)) {
         setSelectedCell(null);
+        setHighlightValue(null);
       }
     }
     document.addEventListener('mousedown', handleClickOutside);
-    return () => document.removeEventListener('mousedown', handleClickOutside);
+
+    // Toggle pencil mode on custom event
+    const handler = () => setPencilMode(p => !p);
+    window.addEventListener('togglePencilMode', handler);
+
+    return () => {
+      window.removeEventListener('togglePencilMode', handler);
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
   }, []);
 
   return (
