@@ -63,7 +63,7 @@ function App() {
     }
 
     const defaultSeed = createSeed();
-    return { difficulty: "easy", seed: defaultSeed };
+    return { difficulty: "hard", seed: defaultSeed };
   }, [createSeed]);
 
   const generateBoardWithDifficulty = useCallback((base: number, seed: string | null, difficulty: 'Easy' | 'Medium' | 'Hard' | null): { board: CellData[][], difficulty: 'Easy' | 'Medium' | 'Hard', seed: string } => {
