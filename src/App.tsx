@@ -43,32 +43,62 @@ function removeValueFromNotes(board: CellData[][], row: number, col: number, val
 }
 
 function App() {
-  function createOrGetSeedFromHash() {
+  function parseHash() {
     const hash = window.location.hash.replace(/^#\/?/, "");
-    if (hash && /^[a-zA-Z0-9]{5}$/.test(hash)) return hash;
+    const parts = hash.split("/");
+    if (parts.length === 2) {
+      const [difficulty, seed] = parts;
+      if ((difficulty === "easy" || difficulty === "medium" || difficulty === "hard") && /^[a-zA-Z0-9]{5}$/.test(seed)) {
+        return { difficulty, seed };
+      }
+    }
+
+    const defaultSeed = createSeed();
+    return { difficulty: "easy", seed: defaultSeed };
+  }
+
+  function createSeed() {
     const chars = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
     let seed = '';
     for (let i = 0; i < 5; i++) {
       seed += chars.charAt(Math.floor(Math.random() * chars.length));
     }
-    window.location.hash = `#/${seed}`;
     return seed;
   }
 
-  const [seed, setSeed] = useState(createOrGetSeedFromHash);
-  // fill between 17 and 40 cells
-  const rng = seedrandom(seed);
-  const filledCells = Math.floor(rng() * (40 - 17 + 1)) + 17;
-  const difficulty = useMemo(() => filledCells <= 22 ? 'Hard' : filledCells <= 30 ? 'Medium' : 'Easy', [filledCells]);
+    function getInitialState() {
+      const parsed = parseHash();
+      window.location.hash = `/${parsed.difficulty}/${parsed.seed}`;
+      const diff = parsed.difficulty.charAt(0).toUpperCase() + parsed.difficulty.slice(1).toLowerCase();
+      const { board, difficulty, seed } = generateBoardWithDifficulty(BASE, parsed.seed, diff as 'Easy' | 'Medium' | 'Hard');
+      return { seed, difficulty, board };
+    }
 
+  const initial = getInitialState();
+  const [seed, setSeed] = useState<string | null>(initial.seed);
+  const [difficulty, setDifficulty] = useState<'Easy' | 'Medium' | 'Hard' | null>(initial.difficulty);
+  const [board, setBoard] = useState<CellData[][] | null>(initial.board);
 
-  const [board, setBoard] = useState<CellData[][]>(() => generateBoard(BASE, filledCells, seed));
+  function generateBoardWithDifficulty(base: number, seed: string | null, difficulty: 'Easy' | 'Medium' | 'Hard' | null): { board: CellData[][], difficulty: 'Easy' | 'Medium' | 'Hard', seed: string } {
+    if (difficulty) {
+      const actualSeed = seed || createSeed();
+      return { board: generateBoard(base, difficulty, actualSeed), difficulty, seed: actualSeed };
+    } else if (seed) {
+      const rng = seedrandom(seed);
+      const filledCells = Math.floor(rng() * (40 - 17 + 1)) + 17;
+      const diff = filledCells <= 22 ? 'Hard' : filledCells <= 30 ? 'Medium' : 'Easy';
+      return { board: generateBoard(base, filledCells, seed), difficulty: diff, seed };
+    }
+    const fallbackSeed = createSeed();
+    return { board: generateBoard(base, 40, fallbackSeed), difficulty: 'Easy', seed: fallbackSeed };
+  }
+
   const [valid, setValid] = useState<boolean | null>(null);
   const [pencilMode, setPencilMode] = useState<boolean>(false);
   const [selectedCell, setSelectedCell] = useState<{ row: number; col: number } | null>(null);
   // Clear highlight if selectedCell changes to an empty cell
   useEffect(() => {
-    if (selectedCell) {
+    if (selectedCell && board) {
       const v = board[selectedCell.row][selectedCell.col].value;
       if (v != null) {
         setHighlightValue(v);
@@ -78,7 +108,6 @@ function App() {
     } else {
       setHighlightValue(null);
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [selectedCell]);
   // Track the last highlighted value (from cell select or note input)
   const [highlightValue, setHighlightValue] = useState<number | null>(null);
@@ -100,15 +129,17 @@ function App() {
 
   useEffect(() => {
     function onHashChange() {
-      const hash = window.location.hash.replace(/^#\/?/, "");
-      if (hash && /^[a-zA-Z0-9]{5}$/.test(hash) && hash !== seed) {
-        setSeed(hash);
-        setBoard(generateBoard(BASE, filledCells, hash));
-      }
+      const parsed = parseHash();
+      window.location.hash = `/${parsed.difficulty}/${parsed.seed}`;
+      const diff = parsed.difficulty.charAt(0).toUpperCase() + parsed.difficulty.slice(1).toLowerCase();
+      const { board, difficulty, seed } = generateBoardWithDifficulty(BASE, parsed.seed, diff as 'Easy' | 'Medium' | 'Hard');
+      setSeed(seed);
+      setDifficulty(difficulty);
+      setBoard(board);
     }
     window.addEventListener('hashchange', onHashChange);
     return () => window.removeEventListener('hashchange', onHashChange);
-  }, [seed, filledCells]);
+  }, []);
 
   const deepCloneBoard = (b: CellData[][]) => b.map(row => row.map(cell => ({ ...cell, notes: [...cell.notes] })));
 
@@ -132,7 +163,7 @@ function App() {
       setHighlightValue(value);
     }
     setBoard(prev => {
-      const newBoard = deepCloneBoard(prev);
+      const newBoard = deepCloneBoard(prev!);
       if (pencilMode) {
         newBoard[row][col].value = null;
         let notes = newBoard[row][col].notes;
@@ -164,10 +195,10 @@ function App() {
       }
       // Only push if prev is not already the last entry
       if (
-        !boardsAreEqual(prev, newBoard) &&
-        (undoStack.current.length === 0 || !boardsAreEqual(undoStack.current[undoStack.current.length - 1], prev))
+        !boardsAreEqual(prev!, newBoard) &&
+        (undoStack.current.length === 0 || !boardsAreEqual(undoStack.current[undoStack.current.length - 1], prev!))
       ) {
-        undoStack.current.push(deepCloneBoard(prev));
+        undoStack.current.push(deepCloneBoard(prev!));
         redoStack.current.length = 0;
       }
       return newBoard;
@@ -175,7 +206,7 @@ function App() {
   };
 
   useEffect(() => {
-    const isValid = isStructurallyValidSudoku(board);
+    const isValid = isStructurallyValidSudoku(board!);
     setValid(isValid);
     if (isValid === false) {
       setShake(true);
@@ -185,7 +216,7 @@ function App() {
 
   const handleUndo = useCallback(() => {
     if (undoStack.current.length > 0) {
-      redoStack.current.push(deepCloneBoard(board));
+      redoStack.current.push(deepCloneBoard(board!));
       const prevBoard = undoStack.current.pop();
       if (prevBoard) setBoard(deepCloneBoard(prevBoard));
     }
@@ -193,13 +224,13 @@ function App() {
 
   const handleRedo = useCallback(() => {
     if (redoStack.current.length > 0) {
-      undoStack.current.push(deepCloneBoard(board));
+      undoStack.current.push(deepCloneBoard(board!));
       const nextBoard = redoStack.current.pop();
       if (nextBoard) setBoard(deepCloneBoard(nextBoard));
     }
   }, [board]);
 
-  const selectedValue = selectedCell ? board[selectedCell.row][selectedCell.col].value : null;
+  const selectedValue = selectedCell && board ? board[selectedCell.row][selectedCell.col].value : null;
   // If a cell is selected and has a value, highlight that value
   const effectiveHighlight = selectedValue != null ? selectedValue : highlightValue;
 
@@ -268,21 +299,23 @@ function App() {
             className={shake ? 'sudoku-grid-outline shake' : 'sudoku-grid-outline'}
             style={valid === false ? { outline: '3px solid red', borderRadius: 8, transition: 'outline 0.2s' } : { outline: 'none', borderRadius: 8, transition: 'outline 0.2s' }}
           >
-            <GameBoard
-              board={board}
-              onChange={handleCellChange}
-              onCellSelect={(row, col) => {
-                setSelectedCell({ row, col });
-                const v = board[row][col].value;
-                if (v != null) {
-                  setHighlightValue(v);
-                } else {
-                  setHighlightValue(null);
-                }
-              }}
-              selectedValue={effectiveHighlight}
-              selectedCell={selectedCell}
-            />
+            {board && (
+              <GameBoard
+                board={board}
+                onChange={handleCellChange}
+                onCellSelect={(row, col) => {
+                  setSelectedCell({ row, col });
+                  const v = board[row][col].value;
+                  if (v != null) {
+                    setHighlightValue(v);
+                  } else {
+                    setHighlightValue(null);
+                  }
+                }}
+                selectedValue={effectiveHighlight}
+                selectedCell={selectedCell}
+              />
+            )}
           </div>
           <div className="game-stats">
             <div>{difficulty + " #" + seed}</div>
@@ -290,13 +323,15 @@ function App() {
             <div>{timeElapsed}</div>
           </div>
           <div className="numberpad-container">
-            <NumberPad
-              onChange={handleCellChange}
-              selectedCell={selectedCell}
-              board={board}
-              onPencilClick={() => setPencilMode(!pencilMode)}
-              pencilMode={pencilMode}
-            />
+            {board && (
+              <NumberPad
+                onChange={handleCellChange}
+                selectedCell={selectedCell}
+                board={board}
+                onPencilClick={() => setPencilMode(!pencilMode)}
+                pencilMode={pencilMode}
+              />
+            )}
           </div>
         </div>
       </div>
