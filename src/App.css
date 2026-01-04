@@ -35,6 +35,7 @@ html, body {
   --cell-size: min(10vw, 10vh);
   --sudoku-number-font-size: calc(var(--cell-size) * 0.65);
   --sudoku-note-font-size: calc(var(--cell-size) * 0.25);
+
 }
 
 .sudoku-grid {
@@ -57,9 +58,10 @@ html, body {
 @media (min-width: 600px) {
   :root {
     --sudoku-number-font-size: 2em;
-    --sudoku-note-font-size: calc(var(--cell-size) * 0.13);
+    --sudoku-note-font-size: 0.5em;
   }
 }
+
 @media (max-width: 600px) {
   .numberpad-root button {
     font-size: clamp(1.5rem, 5vw, 2.4em);
@@ -94,7 +96,6 @@ html, body {
   box-sizing: border-box;
 }
 
-
 .numberpad-root {
   width: 100%;
   max-width: 100vw;
@@ -115,7 +116,6 @@ html, body {
   border-radius: 5px !important;
   border: 1px solid #bbb !important;
   box-shadow: none !important;
-  /* background-color: #fff; */
   outline: none;
 }
 
@@ -182,36 +182,6 @@ html, body {
   padding-bottom: 32px;
 }
 
-.App {
-  text-align: center;
-}
-
-.App-logo {
-  height: 40vmin;
-  pointer-events: none;
-}
-
-@media (prefers-reduced-motion: no-preference) {
-  .App-logo {
-    animation: App-logo-spin infinite 20s linear;
-  }
-}
-
-.App-header {
-  background-color: #282c34;
-  min-height: 100vh;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  font-size: calc(10px + 2vmin);
-  color: white;
-}
-
-.App-link {
-  color: #61dafb;
-}
-
 .gameboard-container {
   display: flex;
   justify-content: center;
@@ -237,15 +207,6 @@ html, body {
   }
   .gameboard-container {
     padding: 0;
-  }
-}
-
-@keyframes App-logo-spin {
-  from {
-    transform: rotate(0deg);
-  }
-  to {
-    transform: rotate(360deg);
   }
 }
 
