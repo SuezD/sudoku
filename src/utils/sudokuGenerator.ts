@@ -18,7 +18,6 @@ function createEmptyBoard(size: number): Board {
 export type Difficulty = 'Easy' | 'Medium' | 'Hard';
 
 export function generateBoard(base: number, filledCellsOrDifficulty: number | Difficulty, seed?: string): Board {
-  const size = base * base;
   let difficulty: Difficulty;
   let filledCells: number;
   if (typeof filledCellsOrDifficulty === 'string') {
@@ -36,7 +35,6 @@ export function generateBoard(base: number, filledCellsOrDifficulty: number | Di
 }
 
 function generateBoardWithBaseAndDifficulty(base: number, filledCells: number, difficulty: Difficulty, seed?: string): Board {
-  const size = base * base;
   const rng = seedrandom(seed || "default");
   let board = generateBaseBoard(base);
 
@@ -96,7 +94,6 @@ function removeCellsByDifficulty(board: Board, difficulty: Difficulty, filledCel
   // If symmetry, pair positions
   let pairs: Array<[number, number, number, number]> = [];
   if (enforceSymmetry) {
-    const mid = Math.floor(size / 2);
     for (let i = 0; i < positions.length / 2; i++) {
       const { r, c } = positions[i];
       const symR = size - 1 - r;
@@ -119,8 +116,6 @@ function removeCellsByDifficulty(board: Board, difficulty: Difficulty, filledCel
         cluesPerBox[box1] > minCluesPerBox &&
         cluesPerBox[box2] > minCluesPerBox
       ) {
-        const oldValue1 = newBoard[r1][c1].value;
-        const oldValue2 = newBoard[r2][c2].value;
         newBoard[r1][c1].value = null;
         newBoard[r1][c1].isInitial = false;
         newBoard[r2][c2].value = null;
@@ -136,7 +131,6 @@ function removeCellsByDifficulty(board: Board, difficulty: Difficulty, filledCel
       const { r, c } = positions[i];
       const box = getBoxIndex(r, c);
       if (newBoard[r][c].value !== null && cluesPerBox[box] > minCluesPerBox) {
-        const oldValue = newBoard[r][c].value;
         newBoard[r][c].value = null;
         newBoard[r][c].isInitial = false;
         // Check unique solution if needed (skipped for brevity)
