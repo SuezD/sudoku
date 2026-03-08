@@ -342,7 +342,6 @@ function App() {
                 onCellDrag={(row, col) => {
                   if (dragStartCell) {
                     setSelectedCells(prev => {
-                      const cellKey = `${row}-${col}`;
                       const alreadySelected = prev.some(c => c.row === row && c.col === col);
                       if (!alreadySelected) {
                         return [...prev, { row, col }];
