@@ -163,9 +163,42 @@ html, body {
 
 .numberpad-container {
   display: flex;
+  flex-direction: column;
   justify-content: center;
   align-items: center;
   margin: 24px auto 0 auto;
+}
+
+.undo-redo-root {
+  display: flex;
+  gap: 0.4rem;
+  margin-top: 0.5rem;
+  align-self: flex-start; /* align to left edge of container */
+}
+
+.undo-redo-root .undo-redo-button,
+.undo-redo-root button {
+  flex: 1 1 0;
+  height: 3.5rem;
+  min-height: 2.5rem;
+  font-size: var(--sudoku-number-font-size);
+  font-weight: bold;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  background: var(--button-bg);
+  color: var(--text-color);
+  border-radius: 5px !important;
+  border: 1px solid var(--grid-outline-color) !important;
+  box-shadow: none !important;
+  outline: none;
+}
+
+.undo-redo-root button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
 }
 
 @media (max-width: 600px) {

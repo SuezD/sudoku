@@ -3,6 +3,7 @@ import React from 'react';
 import './App.css';
 import GameBoard from './components/GameBoard';
 import NumberPad from './components/NumberPad';
+import UndoRedo from './components/UndoRedo';
 import confetti from 'canvas-confetti';
 
 import { Board, CellData, generateBoard } from './utils/sudokuGenerator';
@@ -99,6 +100,8 @@ function App() {
   const [highlightValue, setHighlightValue] = useState<number | null>(null);
   const undoStack = useRef<CellData[][][]>([]);
   const redoStack = useRef<CellData[][][]>([]);
+  const [undoCount, setUndoCount] = useState(0);
+  const [redoCount, setRedoCount] = useState(0);
   const [shake, setShake] = useState(false);
   const [timeElapsed, setTimeElapsed] = useState<string>('00:00');
 
@@ -122,6 +125,10 @@ function App() {
       setSeed(seed);
       setDifficulty(difficulty);
       setBoard(board);
+      // clear undo/redo history when new puzzle loads
+      undoStack.current.length = 0;
+      redoStack.current.length = 0;
+      updateStackCounts();
     }
     window.addEventListener('hashchange', onHashChange);
     return () => window.removeEventListener('hashchange', onHashChange);
@@ -171,6 +178,7 @@ function App() {
       if (undoStack.current.length === 0 || !boardsAreEqual(undoStack.current[undoStack.current.length - 1], prev!)) {
         undoStack.current.push(deepCloneBoard(prev!));
         redoStack.current.length = 0;
+        updateStackCounts();
       }
       return newBoard;
     });
@@ -215,6 +223,7 @@ function App() {
       ) {
         undoStack.current.push(deepCloneBoard(prev!));
         redoStack.current.length = 0;
+        updateStackCounts();
       }
       return newBoard;
     });
@@ -229,11 +238,17 @@ function App() {
     }
   }, [board]);
 
+  const updateStackCounts = () => {
+    setUndoCount(undoStack.current.length);
+    setRedoCount(redoStack.current.length);
+  };
+
   const handleUndo = useCallback(() => {
     if (undoStack.current.length > 0) {
       redoStack.current.push(deepCloneBoard(board!));
       const prevBoard = undoStack.current.pop();
       if (prevBoard) setBoard(deepCloneBoard(prevBoard));
+      updateStackCounts();
     }
   }, [board]);
 
@@ -242,6 +257,7 @@ function App() {
       undoStack.current.push(deepCloneBoard(board!));
       const nextBoard = redoStack.current.pop();
       if (nextBoard) setBoard(deepCloneBoard(nextBoard));
+      updateStackCounts();
     }
   }, [board]);
 
@@ -364,14 +380,22 @@ function App() {
           </div>
           <div className="numberpad-container">
             {board && (
-              <NumberPad
-                onChange={handleCellChange}
-                onMultiNote={handleMultiNote}
-                selectedCells={selectedCells}
-                board={board}
-                onPencilClick={() => setPencilMode(!pencilMode)}
-                pencilMode={pencilMode}
-              />
+              <>
+                <NumberPad
+                  onChange={handleCellChange}
+                  onMultiNote={handleMultiNote}
+                  selectedCells={selectedCells}
+                  board={board}
+                  onPencilClick={() => setPencilMode(!pencilMode)}
+                  pencilMode={pencilMode}
+                />
+                <UndoRedo
+                  onUndo={handleUndo}
+                  onRedo={handleRedo}
+                  disabledUndo={undoCount === 0}
+                  disabledRedo={redoCount === 0}
+                />
+              </>
             )}
           </div>
         </div>
