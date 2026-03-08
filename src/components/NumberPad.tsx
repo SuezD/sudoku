@@ -2,7 +2,8 @@ import React from "react";
 
 type NumberPadProps = {
   onChange: (row: number, col: number, value: number | null) => void;
-  selectedCell: { row: number; col: number } | null;
+  onMultiNote?: (num: number, cells: { row: number; col: number }[]) => void;
+  selectedCells: { row: number; col: number }[];
   board: import('../utils/sudokuGenerator').CellData[][];
   onPencilClick?: () => void;
   pencilMode?: boolean;
@@ -11,13 +12,16 @@ type NumberPadProps = {
 const numbers = [1, 2, 3, 4, 5, 6, 7, 8, 9];
 
 
-const NumberPad: React.FC<NumberPadProps> = ({ onChange, selectedCell, board, onPencilClick, pencilMode }) => {
+const NumberPad: React.FC<NumberPadProps> = ({ onChange, onMultiNote, selectedCells, board, onPencilClick, pencilMode }) => {
 
   const handleNumberClick = (num: number) => {
-    if (!selectedCell) return;
-    const { row, col } = selectedCell;
-    if (board[row][col].isInitial) return;
-    onChange(row, col, num);
+    if (selectedCells.length > 1 && onMultiNote) {
+      onMultiNote(num, selectedCells);
+    } else if (selectedCells.length === 1) {
+      const { row, col } = selectedCells[0];
+      if (board[row][col].isInitial) return;
+      onChange(row, col, num);
+    }
   };
 
   const numberCounts = new Array(10).fill(0);

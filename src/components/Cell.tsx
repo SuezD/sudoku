@@ -8,14 +8,14 @@ type CellProps = {
   onChange?: (row: number, col: number, value: number | null) => void;
   onSelect?: (row: number, col: number) => void;
   selectedValue?: number | null;
-  selectedCell?: { row: number; col: number } | null;
+  selectedCells?: { row: number; col: number }[];
 };
 
 function isMobile() {
   return /Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
 }
 
-const Cell: React.FC<CellProps> = ({ value, row, col, onChange, onSelect, selectedValue, selectedCell }) => {
+const Cell: React.FC<CellProps> = ({ value, row, col, onChange, onSelect, selectedValue, selectedCells }) => {
   const mobile = isMobile();
   const inputRef = useRef<HTMLInputElement>(null);
 
@@ -35,10 +35,11 @@ const Cell: React.FC<CellProps> = ({ value, row, col, onChange, onSelect, select
 
   const isHighlighted = selectedValue != null && value?.value != null && value.value === selectedValue;
   let isRelated = false;
-  if (selectedCell) {
-    const sameRow = row === selectedCell.row;
-    const sameCol = col === selectedCell.col;
-    const sameBox = Math.floor(row / 3) === Math.floor(selectedCell.row / 3) && Math.floor(col / 3) === Math.floor(selectedCell.col / 3);
+  if (selectedCells && selectedCells.length > 0) {
+    const primaryCell = selectedCells[0];
+    const sameRow = row === primaryCell.row;
+    const sameCol = col === primaryCell.col;
+    const sameBox = Math.floor(row / 3) === Math.floor(primaryCell.row / 3) && Math.floor(col / 3) === Math.floor(primaryCell.col / 3);
     isRelated = sameRow || sameCol || sameBox;
   }
 
@@ -55,7 +56,7 @@ const Cell: React.FC<CellProps> = ({ value, row, col, onChange, onSelect, select
   useEffect(() => {
     const input = inputRef.current;
     if (!input) return;
-    if (selectedCell && selectedCell.row === row && selectedCell.col === col) {
+    if (selectedCells && selectedCells.length > 0 && selectedCells[0].row === row && selectedCells[0].col === col) {
       if (document.activeElement !== input) {
         input.focus();
       }
@@ -64,14 +65,45 @@ const Cell: React.FC<CellProps> = ({ value, row, col, onChange, onSelect, select
         input.blur();
       }
     }
-  }, [selectedCell, row, col]);
+  }, [selectedCells, row, col]);
 
-  const isSelected = selectedCell && selectedCell.row === row && selectedCell.col === col;
+  const isSelected = selectedCells ? selectedCells.some(cell => cell.row === row && cell.col === col) : false;
+  // helper to determine if a neighbor in a particular direction is selected
+  const neighborAbove = selectedCells ? selectedCells.some(c => c.row === row - 1 && c.col === col) : false;
+  const neighborBelow = selectedCells ? selectedCells.some(c => c.row === row + 1 && c.col === col) : false;
+  const neighborLeft = selectedCells ? selectedCells.some(c => c.row === row && c.col === col - 1) : false;
+  const neighborRight = selectedCells ? selectedCells.some(c => c.row === row && c.col === col + 1) : false;
+
+  const borderTopStyle = isSelected
+    ? neighborAbove
+      ? '1px solid var(--grid-outline-color)'
+      : '2.5px solid var(--grid-thick-outline-color)'
+    : '1px solid var(--grid-outline-color)';
+  const borderLeftStyle = isSelected
+    ? neighborLeft
+      ? '1px solid var(--grid-outline-color)'
+      : '2.5px solid var(--grid-thick-outline-color)'
+    : '1px solid var(--grid-outline-color)';
+  const borderRightStyle = isSelected
+    ? neighborRight
+      ? '1px solid var(--grid-outline-color)'
+      : '2.5px solid var(--grid-thick-outline-color)'
+    : col === 8
+      ? '1px solid var(--grid-outline-color)'
+      : undefined;
+  const borderBottomStyle = isSelected
+    ? neighborBelow
+      ? '1px solid var(--grid-outline-color)'
+      : '2.5px solid var(--grid-thick-outline-color)'
+    : row === 8
+      ? '1px solid var(--grid-outline-color)'
+      : undefined;
+
   const borderStyle: React.CSSProperties = {
-    borderTop: '1px solid var(--grid-outline-color)',
-    borderLeft: '1px solid var(--grid-outline-color)',
-    borderRight: col === 8 ? '1px solid var(--grid-outline-color)' : undefined,
-    borderBottom: row === 8 ? '1px solid var(--grid-outline-color)' : undefined,
+    borderTop: borderTopStyle,
+    borderLeft: borderLeftStyle,
+    borderRight: borderRightStyle,
+    borderBottom: borderBottomStyle,
     background: isHighlighted
       ? 'var(--cell-highlight-bg)'
       : isRelated && !isHighlighted
@@ -88,10 +120,10 @@ const Cell: React.FC<CellProps> = ({ value, row, col, onChange, onSelect, select
     justifyContent: 'center',
     position: 'relative',
     boxSizing: 'border-box',
-    outline: isSelected ? '2.5px solid var(--grid-thick-outline-color)' : undefined,
-    outlineOffset: isSelected ? '-2px' : undefined,
+    outline: isSelected && selectedCells && selectedCells.length === 1 ? '2.5px solid var(--grid-thick-outline-color)' : undefined,
+    outlineOffset: isSelected && selectedCells && selectedCells.length === 1 ? '-2px' : undefined,
     zIndex: isSelected ? 2 : undefined,
-    borderRadius: isSelected ? '4px' : undefined,
+    borderRadius: isSelected && selectedCells && selectedCells.length === 1 ? '4px' : undefined,
   };
   return (
     <div
@@ -171,6 +203,9 @@ const Cell: React.FC<CellProps> = ({ value, row, col, onChange, onSelect, select
         inputMode="numeric"
         pattern="[1-9]*"
         autoComplete="off"
+        autoCorrect="off"
+        autoCapitalize="off"
+        spellCheck="false"
       />
     </div>
   );

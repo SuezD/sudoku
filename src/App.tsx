@@ -93,7 +93,8 @@ function App() {
 
   const [valid, setValid] = useState<boolean | null>(null);
   const [pencilMode, setPencilMode] = useState<boolean>(false);
-  const [selectedCell, setSelectedCell] = useState<{ row: number; col: number } | null>(null);
+  const [selectedCells, setSelectedCells] = useState<{ row: number; col: number }[]>([]);
+  const [dragStartCell, setDragStartCell] = useState<{ row: number; col: number } | null>(null);
 
   const [highlightValue, setHighlightValue] = useState<number | null>(null);
   const undoStack = useRef<CellData[][][]>([]);
@@ -141,12 +142,41 @@ function App() {
     return true;
   };
 
+  const handleMultiNote = (num: number, cells: { row: number; col: number }[]) => {
+    if (!board) return; // board may be null before initialization
+
+    // Check if any selected cell is missing this note
+    const anyMissing = cells.some(({ row, col }) => 
+      !board[row][col].isInitial && board[row][col].value === null && !board[row][col].notes.includes(num)
+    );
+    setHighlightValue(anyMissing ? num : null);
+    setBoard(prev => {
+      const newBoard = deepCloneBoard(prev!);
+      cells.forEach(({ row, col }) => {
+        if (newBoard[row][col].isInitial || newBoard[row][col].value !== null) return;
+        let notes = newBoard[row][col].notes;
+        if (anyMissing) {
+          // Add to cells that don't have it
+          if (!notes.includes(num)) {
+            notes.push(num);
+            notes.sort();
+          }
+        } else {
+          // All have it, so remove from all
+          notes = notes.filter(n => n !== num);
+        }
+        newBoard[row][col].notes = notes;
+      });
+      // Push to undo stack
+      if (undoStack.current.length === 0 || !boardsAreEqual(undoStack.current[undoStack.current.length - 1], prev!)) {
+        undoStack.current.push(deepCloneBoard(prev!));
+        redoStack.current.length = 0;
+      }
+      return newBoard;
+    });
+  };
+
   const handleCellChange = (row: number, col: number, value: number | null) => {
-    if (pencilMode && value != null) {
-      setHighlightValue(value);
-    } else if (!pencilMode && value != null) {
-      setHighlightValue(value);
-    }
     setBoard(prev => {
       const newBoard = deepCloneBoard(prev!);
       if (pencilMode) {
@@ -215,7 +245,7 @@ function App() {
     }
   }, [board]);
 
-  const selectedValue = selectedCell && board ? board[selectedCell.row][selectedCell.col].value : null;
+  const selectedValue = selectedCells.length > 0 && board ? board[selectedCells[0].row][selectedCells[0].col].value : null;
   // If a cell is selected and has a value, highlight that value
   const effectiveHighlight = selectedValue != null ? selectedValue : highlightValue;
 
@@ -223,14 +253,14 @@ function App() {
     const size = 9;
     if (["ArrowUp", "ArrowDown", "ArrowLeft", "ArrowRight"].includes(e.key)) {
       e.preventDefault();
-      setSelectedCell(prev => {
-        let row = prev?.row ?? 0;
-        let col = prev?.col ?? 0;
+      setSelectedCells(prev => {
+        let row = prev.length > 0 ? prev[0].row : 0;
+        let col = prev.length > 0 ? prev[0].col : 0;
         if (e.key === "ArrowUp") row = (row + size - 1) % size;
         if (e.key === "ArrowDown") row = (row + 1) % size;
         if (e.key === "ArrowLeft") col = (col + size - 1) % size;
         if (e.key === "ArrowRight") col = (col + 1) % size;
-        return { row, col };
+        return [{ row, col }];
       });
     }
   }, []);
@@ -262,7 +292,7 @@ function App() {
     function handleClickOutside(e: MouseEvent) {
       const grid = document.getElementById('sudoku-grid');
       if (grid && !grid.contains(e.target as Node)) {
-        setSelectedCell(null);
+        setSelectedCells([]);
         setHighlightValue(null);
       }
     }
@@ -292,7 +322,16 @@ function App() {
                 board={board}
                 onChange={handleCellChange}
                 onCellSelect={(row, col) => {
-                  setSelectedCell({ row, col });
+                  setSelectedCells([{ row, col }]);
+                  const v = board[row][col].value;
+                  if (v != null) {
+                    setHighlightValue(v);
+                  } else {
+                    setHighlightValue(null);
+                  }
+                }}                onCellDragStart={(row, col) => {
+                  setDragStartCell({ row, col });
+                  setSelectedCells([{ row, col }]);
                   const v = board[row][col].value;
                   if (v != null) {
                     setHighlightValue(v);
@@ -300,8 +339,22 @@ function App() {
                     setHighlightValue(null);
                   }
                 }}
-                selectedValue={effectiveHighlight}
-                selectedCell={selectedCell}
+                onCellDrag={(row, col) => {
+                  if (dragStartCell) {
+                    setSelectedCells(prev => {
+                      const cellKey = `${row}-${col}`;
+                      const alreadySelected = prev.some(c => c.row === row && c.col === col);
+                      if (!alreadySelected) {
+                        return [...prev, { row, col }];
+                      }
+                      return prev;
+                    });
+                  }
+                }}
+                onCellDragEnd={() => {
+                  setDragStartCell(null);
+                }}                selectedValue={effectiveHighlight}
+                selectedCells={selectedCells}
               />
             )}
           </div>
@@ -314,7 +367,8 @@ function App() {
             {board && (
               <NumberPad
                 onChange={handleCellChange}
-                selectedCell={selectedCell}
+                onMultiNote={handleMultiNote}
+                selectedCells={selectedCells}
                 board={board}
                 onPencilClick={() => setPencilMode(!pencilMode)}
                 pencilMode={pencilMode}
