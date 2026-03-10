@@ -4,6 +4,7 @@ import './App.css';
 import GameBoard from './components/GameBoard';
 import NumberPad from './components/NumberPad';
 import UndoRedo from './components/UndoRedo';
+import SettingsModal from './components/SettingsModal';
 import confetti from 'canvas-confetti';
 
 import { Board, CellData, generateBoard } from './utils/sudokuGenerator';
@@ -96,6 +97,10 @@ function App() {
   const [pencilMode, setPencilMode] = useState<boolean>(false);
   const [selectedCells, setSelectedCells] = useState<{ row: number; col: number }[]>([]);
   const [dragStartCell, setDragStartCell] = useState<{ row: number; col: number } | null>(null);
+
+  const [showSettings, setShowSettings] = useState(false);
+  const [newDifficulty, setNewDifficulty] = useState<'Easy' | 'Medium' | 'Hard'>(difficulty || 'Hard');
+  const [newSeed, setNewSeed] = useState(seed || '');
 
   const [highlightValue, setHighlightValue] = useState<number | null>(null);
   const undoStack = useRef<CellData[][][]>([]);
@@ -261,6 +266,45 @@ function App() {
     }
   }, [board]);
 
+  const handleRestartPuzzle = useCallback(() => {
+    if (!difficulty || !seed) return;
+    const { board: newBoard } = generateBoardWithDifficulty(BASE, seed, difficulty);
+    setBoard(newBoard);
+    undoStack.current.length = 0;
+    redoStack.current.length = 0;
+    updateStackCounts();
+    setTimeElapsed('00:00');
+    setShowSettings(false);
+  }, [difficulty, seed, generateBoardWithDifficulty]);
+
+  const handleNewPuzzle = useCallback(() => {
+    const newSeedValue = createSeed();
+    const { board: newBoard, difficulty: newDiff, seed: actualSeed } = generateBoardWithDifficulty(BASE, newSeedValue, newDifficulty);
+    setSeed(actualSeed);
+    setDifficulty(newDiff);
+    setBoard(newBoard);
+    window.location.hash = `/${newDiff.toLowerCase()}/${actualSeed}`;
+    undoStack.current.length = 0;
+    redoStack.current.length = 0;
+    updateStackCounts();
+    setTimeElapsed('00:00');
+    setShowSettings(false);
+  }, [newDifficulty, createSeed, generateBoardWithDifficulty]);
+
+  const handleLoadSeed = useCallback(() => {
+    if (!newSeed || !/^[a-zA-Z0-9]{5}$/.test(newSeed)) return;
+    const { board: newBoard, difficulty: newDiff, seed: actualSeed } = generateBoardWithDifficulty(BASE, newSeed, newDifficulty);
+    setSeed(actualSeed);
+    setDifficulty(newDiff);
+    setBoard(newBoard);
+    window.location.hash = `/${newDiff.toLowerCase()}/${actualSeed}`;
+    undoStack.current.length = 0;
+    redoStack.current.length = 0;
+    updateStackCounts();
+    setTimeElapsed('00:00');
+    setShowSettings(false);
+  }, [newSeed, newDifficulty, generateBoardWithDifficulty]);
+
   const selectedValue = selectedCells.length > 0 && board ? board[selectedCells[0].row][selectedCells[0].col].value : null;
   // If a cell is selected and has a value, highlight that value
   const effectiveHighlight = selectedValue != null ? selectedValue : highlightValue;
@@ -327,7 +371,22 @@ function App() {
   return (
     <div className="App">
       <div className="main-content">
-        <h1 style={{ textAlign: 'center' }}>Sudoku</h1>
+        <div className="app-header">
+          {/* spacer gear used purely for centering, not interactive */}
+          <span className="settings-spacer" aria-hidden="true">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+              <circle cx="12" cy="12" r="3"></circle>
+              <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1 1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path>
+            </svg>
+          </span>
+          <h1>Sudoku</h1>
+          <button className="settings-button" onClick={() => setShowSettings(true)}>
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+              <circle cx="12" cy="12" r="3"></circle>
+              <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0 l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1 1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path>
+            </svg>
+          </button>
+        </div>
         <div id="sudoku-grid">
           <div
             className={shake ? 'sudoku-grid-outline shake' : 'sudoku-grid-outline'}
@@ -400,6 +459,20 @@ function App() {
           </div>
         </div>
       </div>
+      
+      <SettingsModal
+        isOpen={showSettings}
+        onClose={() => setShowSettings(false)}
+        difficulty={difficulty || 'Hard'}
+        seed={seed || ''}
+        newDifficulty={newDifficulty}
+        newSeed={newSeed}
+        onDifficultyChange={setNewDifficulty}
+        onSeedChange={setNewSeed}
+        onRestartPuzzle={handleRestartPuzzle}
+        onNewPuzzle={handleNewPuzzle}
+        onLoadSeed={handleLoadSeed}
+      />
     </div>
   );
 }
