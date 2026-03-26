@@ -2,6 +2,7 @@ import React from 'react';
 import ReactDOM from 'react-dom/client';
 import './index.css';
 import App from './App';
+import * as serviceWorkerRegistration from './serviceWorkerRegistration';
 
 const rootElement = document.getElementById('root');
 if (rootElement) {
@@ -12,3 +13,9 @@ if (rootElement) {
     </React.StrictMode>
   );
 }
+
+serviceWorkerRegistration.register({
+  onUpdate: () => {
+    window.location.reload();
+  }
+});
